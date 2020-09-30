@@ -1,0 +1,62 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz-uml}
+
+\title{Project Specification - Roguelike RPG}
+\author{Ying Stokes}
+\date{September 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This project is a Rogue-like Role Playing Game implemented using the ncurses library for graphical output. It allows the user to control an adventurer to explore a dungeon. The dungeon should contain procedurally generated rooms which contain similarly procedurally generated entities of interest, such as monsters and items.
+
+\section{Design Description}
+\subsection{Assessment Concepts}
+\subsubsection{Memory Allocation from the Stack and the Heap}
+\begin{itemize}
+    \item \textbf{Arrays:} The game map will be implemented using a two-dimensional array.
+    \item \textbf{Strings:} Most objects such as monsters, items, and parts of the environment will have textual information associated with them, such as descriptions of enemies.
+    \item \textbf{Objects:} The project will rely heavily on object-oriented design, so most functionality of the game will use objects, such as entities, items, levels, the renderer, etc.
+\end{itemize}
+
+\subsubsection{User Input and Output}
+\begin{itemize}
+    \item Input/output will be implemented in a blocking fashion (as the game is turn-based) to retreive user input commands in the form of particular keypresses (or combinations thereof).
+    \item This will be achieved using ncurses, which will parse user input per-character, and alter the game state based on a number of factors (such as menu contexts etc.).
+\end{itemize}
+
+\subsubsection{Object-oriented programming and design}
+\begin{itemize}
+    \item Objects will be used to model all aspects of the game environment, such as objects representing terrain tiles, and game entities.
+    \item \textbf{Inheritance:} In order to implement various types of animated entities in the game, such as the player, as well as monsters that might oppose the player, a parent class to model a living creature will be used.
+    \item \textbf{Inheritance:} Items in the game must all be able to do certain things, such as getting picked up by the player, or being dropped, or used. Thus, all items must inherit a base ``item'' class, while each individual item type may incorporate unique behaviours.
+\end{itemize}
+\subsubsection{Testing}
+\begin{itemize}
+    \item The functionality of individual processes in the game will be tested manually by integration testing.
+    \item In addition, unit testing will be used to verify that behaviours such as applying damage to creatures works properly.
+\end{itemize}
+\subsection{Class Diagram}
+\begin{tikzpicture}
+    \umlclass{Entity}{
+        \# x : int\\
+        \# y : int\\
+        \# avatar : char
+        } {
+        + GetX() : int\\
+        + GetY() : int\\
+        + GetAvatar() : char\\
+        + Move(x : int, y : int) : void\\
+        + SetPos(x : int, y : int) : void
+    }
+\end{tikzpicture}
+\subsection{Class Descriptions}
+\subsubsection{Game}
+This will be the main object representing the game in its entirety, containing the instances for other objects, such as the UI, the renderer, and the levels.
+\subsubsection{UI}
+The UI object will contain the code which will control the renderer object
+\end{document}
+

@@ -1,1 +1,11 @@
-./NCURSES-Programming-HOWTO.pdf
+*.o
+roguelike
+cursestest
+
+.ccls
+
+spec/spec.aux
+spec/spec.fdb_latexmk
+spec/spec.fls
+spec/spec.log
+spec/spec.synctex.gz
