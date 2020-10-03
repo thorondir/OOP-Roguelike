@@ -4,6 +4,7 @@
 class Room {
     public:
         Room(int y, int x, int w, int h) : y_(y), x_(x), width_(w), height_(h) {};
+        Room();
 
         int GetY1();
         int GetX1();

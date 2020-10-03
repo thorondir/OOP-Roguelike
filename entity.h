@@ -2,6 +2,10 @@
 #define ENTITY_H_
 
 #include <string>
+#include <array>
+
+#include "constants.h"
+#include "environment.h"
 
 class Entity {
     public:
@@ -16,7 +20,7 @@ class Entity {
         int* GetStats(); // this is known to be int[4], which will not change
         short GetColorPair();
         void SetPos(int, int);
-        void Move(int, int);
+        void Move(int, int, std::array<std::array<Tile, kMapWidth>, kMapHeight>);
         void TakeDamage(int);
         //void Damage(int);
         void Heal(int);

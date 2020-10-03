@@ -30,6 +30,8 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
 
     living_ = false; // monsters attack living things, but shouldn't attack any entity
     dead_ = false; // entities start alive
+
+    color_pair_ = 0;
 }
 
 // return the x coordinate of the entity, perhaps make this more elegant in terms of returning both y and x as a pair?
@@ -66,9 +68,13 @@ short Entity::GetColorPair() {
 // for both the following methods, the entity can move out of bounds. i don't care.
 
 // move entity some number of units
-void Entity::Move(int dy, int dx) {
-    y_ += dy;
-    x_ += dx;
+void Entity::Move(int dy, int dx, std::array<std::array<Tile, kMapWidth>, kMapHeight> map) {
+    int new_y = y_ + dy;
+    int new_x = x_ + dx;
+    if (!map[new_y][new_x].blocking) {
+        y_ = new_y;
+        x_ = new_x;
+    }
 }
 
 // set entity's location to arguments
