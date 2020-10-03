@@ -1,7 +1,7 @@
 BINNAME=roguelike
 
 CC=g++
-CFLAGS=-I.
+CFLAGS=-I. -std=c++11
 
 SRCDIR=./src
 
