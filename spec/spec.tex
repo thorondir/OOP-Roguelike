@@ -1,10 +1,14 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{tikz-uml}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage[T1]{fontenc}
+
 
 \title{Project Specification - Roguelike RPG}
 \author{Ying Stokes}
-\date{September 2020}
+\date{October 2020}
 
 \begin{document}
 
@@ -39,20 +43,153 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
     \item The functionality of individual processes in the game will be tested manually by integration testing.
     \item In addition, unit testing will be used to verify that behaviours such as applying damage to creatures works properly.
 \end{itemize}
-\subsection{Class Diagram}
+\subsection{Class Diagrams}
+\begin{figure}[h] \center
 \begin{tikzpicture}
     \umlclass{Entity}{
+        + static next\_id : int\\
         \# x : int\\
         \# y : int\\
-        \# avatar : char
+        \# hp : int\\
+        \# stats : int[3]\\
+        \# equipment\_slots : int[4]\\
+        \# equipment : vector<EquippableItem>\\
+        \# friendly : bool\\
+        \# doormat : bool\\
+        \# living : bool\\
+        \# dead : bool\\
+        -- name : string\\
+        -- description : string\\
+        -- avatar : char\\
+        -- id : int
         } {
         + GetX() : int\\
         + GetY() : int\\
         + GetAvatar() : char\\
-        + Move(x : int, y : int) : void\\
-        + SetPos(x : int, y : int) : void
+        + GetId() : int\\
+        + GetStats() : int[3]\\
+        + Move(y : int, x : int) : void\\
+        + SetPos(y : int, x : int) : void\\
+        + TakeDamage(damage : int)\\
+        + Damage(other\_id : int)\\
+        + Heal(heal : int)
+    }
+    \umlclass[x=-4, y=-14]{Player}{
+        -- inventory : vector<pair<item, int>{>}\\
+        -- max\_weight : float
+        }{
+        -- GetInvenWeight() : float
+    }
+    \umlclass[x=0, y=-10]{Enemy}{
+        -- loot : vector<pair<item, int>{>}\\
+        }{
+        + MoveAttackTowardsPlayer() : void\\
+        + DropAllLoot() : void\\
+        + DropRandomLoot() : void
+    }
+    \umlclass[x=4,y=-14]{ItemEntity}{
+        -- item : item\\
+        -- count : int
+        }{
+        + PickUp() : void\\
+        + PickUpN(number : int) : void\\
+        + GetItem() : item\\
+        + GetCount() : int
+    }
+    \umlinherit[geometry=|-|]{Player}{Entity}
+    \umlinherit[geometry=|-|]{Enemy}{Entity}
+    \umlinherit[geometry=|-|]{ItemEntity}{Entity}
+\end{tikzpicture}
+\caption{Entity Class Diagram}
+\end{figure}
+\begin{figure}[h] \center
+\begin{tikzpicture}
+    \umlclass{Item}{
+        -- name : string\\
+        -- weight : float\\
+        -- value : float\\
+        }{
+        + GetName() : string\\
+        + GetWeight() : float\\
+        + GetValue() : float\\
+        + Drop(y : int, x : int) : void\\
+    }
+    \umlclass[x=-3,y=-6]{EquippableItem}{
+        -- user : *entity\\
+        -- bonuses : int[3]\\
+        -- slot : int\\
+        }{
+        + GetUser() : *entity\\
+        + GetSlot() : int\\
+        + GetBonuses : int[3]\\
+        + SetUser(user : *entity) : void\\
+    }
+    \umlclass[type=abstract,x=3,y=-6]{ComestibleItem}{
+        }{
+        + virtual Consume(user: *entity) : void
+    }
+    \umlclass[x=3,y=-12]{HealingItem}{
+        }{
+        + Consume(user : *entity) : void 
+    }
+    \umlinherit[geometry=|-|]{EquippableItem}{Item}
+    \umlinherit[geometry=|-|]{ComestibleItem}{Item}
+    \umlinherit{HealingItem}{ComestibleItem}
+% use subtypes rather than enum, introduce quantity checkers and shit
+\end{tikzpicture}
+\caption{Item Class Diagram}
+\end{figure}
+\begin{figure}[h] \center
+\begin{tikzpicture}
+    \umlclass{Level}{
+        -- map : Tile[45][80]\\
+        -- rooms : vector<Room>\\
+        + entities : vector<Entity>\\
+        }{
+        -- GenerateRooms() : void\\
+        -- ApplyRooms() : void\\
+        -- PopulateRooms() : void\\
+    }
+    \umlclass[y=3,x=6]{Room}{
+        -- y : int\\
+        -- x : int\\
+        -- w : int\\
+        -- h : int
+        }{
+        + GetY1()\\
+        + GetX1()\\
+        + GetY2()\\
+        + GetX2()\\
+        + GetHeight()\\
+        + GetWidth()\\
+        + GetArea()\\
+    }
+    \umlclass[y=-3,x=6]{Tile}{
+        + blocking : bool\\
+        + transparent : bool\\
+        + color\_pair : int\\
+        + character : char
+        }{
+    }
+    \umlcompo{Level}{Room}
+    \umlcompo{Level}{Tile}
+\end{tikzpicture}
+\caption{Level Class Diagram}
+\end{figure}
+\begin{figure}[h] \center
+\begin{tikzpicture}
+    \umlclass{Renderer}{
+        -- screen\_width\\
+        -- screen\_height\\
+        -- hud\_start\_x\\
+        -- messages : string[40]
+        }{
+        + render\_level(level : Level)\\
+        + render\_hud(player : *Player)\\
     }
 \end{tikzpicture}
+\caption{Renderer Class Diagram}
+\end{figure}
 \subsection{Class Descriptions}
 \subsubsection{Game}
 This will be the main object representing the game in its entirety, containing the instances for other objects, such as the UI, the renderer, and the levels.

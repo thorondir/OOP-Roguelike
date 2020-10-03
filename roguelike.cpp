@@ -1,40 +1,31 @@
 #include "roguelike.h"
-#include "player.h"
 
 int main() {
-    // this all placeholder testing stuff
-    int x,y,ch;
-    initscr();
-    raw();
-    noecho();
-    keypad(stdscr, TRUE);
-    curs_set(0);
-    start_color();
+    Renderer renderer;
 
-    getmaxyx(stdscr, y, x);
-    Player player(y/2, x/2);
-    init_color(COLOR_BLACK, 0, 0, 0);
-    init_color(COLOR_WHITE, 1000, 1000, 1000);
-    init_pair(0, COLOR_BLACK, COLOR_BLACK);
-    bkgd(' ' | COLOR_PAIR(0));
+    std::vector<Level> levels;
+
+    levels.push_back(Level());
+    levels[0].entities_.push_back(Player(20, 40));
+
+    int ch;
 
     while (ch != 'q') {
-        wclear(stdscr);
-        mvaddch(player.GetY(),  player.GetX(), player.GetAvatar());
-        refresh();
+        renderer.RenderLevel(levels[0]);
+
         ch = getch();
         switch (ch) {
             case KEY_UP:
-                player.Move(-1,0);
+                levels[0].entities_[0].Move(-1,0);
                 break;
             case KEY_DOWN:
-                player.Move(1,0);
+                levels[0].entities_[0].Move(1,0);
                 break;
             case KEY_LEFT:
-                player.Move(0,-1);
+                levels[0].entities_[0].Move(0,-1);
                 break;
             case KEY_RIGHT:
-                player.Move(0,1);
+                levels[0].entities_[0].Move(0,1);
                 break;
         }
     }
