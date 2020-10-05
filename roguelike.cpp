@@ -1,7 +1,7 @@
 #include "roguelike.h"
 
 int main() {
-    Renderer renderer;
+    InitialiseRenderer();
 
     std::vector<Level> levels;
 
@@ -10,7 +10,7 @@ int main() {
     int ch;
 
     while (ch != 'q') {
-        renderer.RenderLevel(levels[0]);
+        RenderLevel(levels[0]);
 
         ch = getch();
         switch (ch) {
