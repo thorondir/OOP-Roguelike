@@ -1,16 +1,33 @@
 #include "renderer.h"
 
 // ncurses variables
+WINDOW* ncurses_hud_window;
 
 // screen variables
 int screen_width;
 int screen_height;
-int hud_start_x;
 
-int hud_message_number;
+// hud variables
+int hud_width;
+int hud_message_number = 0;
+std::string hud_messages[10];
 
 void RenderEntities(std::vector<Entity>);
 void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight>);
+
+// helper function to get the number of characters to be printed when printing int
+int GetIntLength(int num) {
+    int digits = 0;
+    if (num <= 0) {
+        num = 0 - num;
+        digits++;
+    }
+    while (num >= 1) {
+        num /= 10;
+        digits++;
+    }
+    return digits;
+}
 
 void InitialiseRenderer() {
     // initialise ncurses
@@ -24,10 +41,16 @@ void InitialiseRenderer() {
     // get screen dimensions
     getmaxyx(stdscr, screen_height, screen_width);
 
-    // find position where the hud starts
-    hud_start_x = screen_width - kMapWidth;
+    // update game window so it doesn't overlap with hud
+    stdscr = newwin(screen_height, screen_width, 0, 0);
 
     // create hud window
+    hud_width = screen_width-kMapWidth;
+    ncurses_hud_window = newwin(screen_height, hud_width, 0, kMapWidth);
+
+    // refresh all windows before the first frame
+    wrefresh(stdscr);
+    wrefresh(ncurses_hud_window);
 
     // define colour rgb values (this is necessary in case terminal colours have been altered)
     init_color(COLOR_BLACK, 0, 0, 0);
@@ -47,14 +70,52 @@ void InitialiseRenderer() {
     bkgd(' ' | COLOR_PAIR(0));
 }
 
-void RenderHud(Player* player, std::array<std::string, 10> messages) {
-    for (int i = hud_message_number; i > hud_message_number - 10; i--) {
-        // print messages[i%10]
+void RenderHud(Entity* player) {
+    wclear(ncurses_hud_window);
+    box(ncurses_hud_window, 0, 0);
 
-        if (i == 0) {
+    // gui status information
+    mvwprintw(ncurses_hud_window, 1, 1, "%s", player->GetName().c_str());
+    mvwprintw(ncurses_hud_window, 2, 1, "HP: %d", player->GetHP());
+
+    // stats box
+    std::array<int, 4> stats = player->GetStats();
+    std::string stat_titles[4] = {"Max HP: ", "DEF: ", "ATK Roll: ", "ATK Bonus: "};
+
+    // get the length of the longest string that needs to be printed
+    int statbox_width = 0;
+    for (int i = 0; i < stats.size(); i ++) {
+        if (stat_titles[i].length() + GetIntLength(stats[i]) > statbox_width) {
+            statbox_width = stat_titles[i].length() + GetIntLength(stats[i]);
+        }
+    }
+    // print stat lines
+
+    for (int i = 0; i < stats.size(); i++) {
+        mvwprintw(ncurses_hud_window, i + 1, hud_width - 2 - statbox_width, "%s", stat_titles[i].c_str());
+        mvwprintw(ncurses_hud_window, i + 1, hud_width - 1 - GetIntLength(stats[i]), "%d", stats[i]);
+    }
+
+    // print messages
+    int current_term_line = screen_height-1;
+    for (int i = hud_message_number - 1; i > hud_message_number - 10; i--) {
+        // print messages[i%10]
+        int num_lines = ceil(hud_messages[i%10].length() / (float) (hud_width - 2));
+
+        // print each line of the message
+        for (int l = 0; l < num_lines; l++) {
+            mvwprintw(ncurses_hud_window, current_term_line - num_lines + l, 1, "%s", hud_messages[i%10].substr((hud_width - 2) * l, hud_width - 2).c_str());
+        }
+
+        // move the next print up by the number of lines just printed
+        current_term_line -= num_lines;
+
+        if (i == 0 || current_term_line <= 10) {
             break;
         }
     }
+
+    wrefresh(ncurses_hud_window);
 }
 
 void RenderLevel(Level level) {
@@ -78,4 +139,8 @@ void RenderEntities(std::vector<Entity> entities) {
     for (Entity entity : entities) {
         mvaddch(entity.GetY(),  entity.GetX(), entity.GetAvatar() | COLOR_PAIR(entity.GetColorPair()));
     }
+}
+
+void AddHudMessage(std::string message) {
+    hud_messages[hud_message_number++ % 10] = message;
 }

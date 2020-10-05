@@ -49,14 +49,24 @@ char Entity::GetAvatar() {
     return avatar_;
 }
 
+// return the entity's name
+std::string Entity::GetName() {
+    return name_;
+}
+
 // return the id number of the entity.
 // this can doesn't get reset at all until the end of execution, so it will continually increase even after changing levels etc (not sure how this interacts with moving the player entity...)
 int Entity::GetId() {
     return id_;
 }
 
+// return the entity's current hp
+int Entity::GetHP() {
+    return hp_;
+}
+
 // return the stat array of the entity
-int* Entity::GetStats() {
+std::array<int, 4> Entity::GetStats() {
     return stats_;
 }
 

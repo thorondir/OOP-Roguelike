@@ -5,16 +5,18 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "entity.h"
-#include "player.h"
 #include "level.h"
 #include "environment.h"
 #include "constants.h"
 
 void InitialiseRenderer();
 
-void RenderHud(Player*, std::array<std::string, 10>);
+void RenderHud(Entity*);
 void RenderLevel(Level);
+
+void AddHudMessage(std::string);
 
 #endif

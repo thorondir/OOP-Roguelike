@@ -16,8 +16,11 @@ class Entity {
         int GetX();
         int GetY();
         char GetAvatar();
+        std::string GetName();
         int GetId();
-        int* GetStats(); // this is known to be int[4], which will not change
+        
+        int GetHP();
+        std::array<int, 4> GetStats(); // this is known to be int[4], which will not change
         short GetColorPair();
         void SetPos(int, int);
         void Move(int, int, std::array<std::array<Tile, kMapWidth>, kMapHeight>);
@@ -28,8 +31,8 @@ class Entity {
     protected:
         int x_,y_;
         int hp_;
-        int stats_[4]; // {maximum_hp, defense, maximum_attack_roll, attack_bonus}
-        int equipment_slots_[4]; // {heads, arms, torsos, feet}
+        std::array<int, 4> stats_; // {maximum_hp, defense, maximum_attack_roll, attack_bonus}
+        std::array<int, 4> equipment_slots_; // {heads, arms, torsos, feet}
         bool friendly_; // whether the player attacks the entity
         bool doormat_; // whether the entity can be walked over
         bool living_;
