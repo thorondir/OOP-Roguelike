@@ -28,6 +28,7 @@ Level::Level() {
 std::array<std::array<Tile, kMapWidth>, kMapHeight> Level::GetMap() {
     return map_;
 }
+
 void Level::GenerateRooms() {
     // generate a random number of rooms
     int y,x,width,height;

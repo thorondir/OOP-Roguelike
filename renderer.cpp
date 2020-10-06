@@ -99,20 +99,20 @@ void RenderHud(Entity* player) {
     // print messages
     int current_term_line = screen_height-1;
     for (int i = hud_message_number - 1; i > hud_message_number - 10; i--) {
+        if (i < 0 || current_term_line <= 10) {
+            break;
+        }
+
         // print messages[i%10]
         int num_lines = ceil(hud_messages[i%10].length() / (float) (hud_width - 2));
 
         // print each line of the message
         for (int l = 0; l < num_lines; l++) {
-            mvwprintw(ncurses_hud_window, current_term_line - num_lines + l, 1, "%s", hud_messages[i%10].substr((hud_width - 2) * l, hud_width - 2).c_str());
+            mvwprintw(ncurses_hud_window, current_term_line - num_lines + l, 1, "%s", hud_messages[i%10].substr((hud_width - 2) * l, (hud_width - 2) * (l + 1)).c_str());
         }
 
         // move the next print up by the number of lines just printed
         current_term_line -= num_lines;
-
-        if (i == 0 || current_term_line <= 10) {
-            break;
-        }
     }
 
     wrefresh(ncurses_hud_window);
