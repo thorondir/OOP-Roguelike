@@ -21,6 +21,8 @@ Level::Level() {
     }
 
     GenerateRooms();
+    // tunnels count as rooms, so do this before applying rooms
+    GenerateTunnels();
     ApplyRooms();
     PopulateRooms();
 }
@@ -42,9 +44,14 @@ void Level::GenerateRooms() {
             height = room_size_distribution(kRng);
 
             room_ok = true;
-            // discard rooms if they overlap with other rooms. this allows for edges to overlap, but i think that's cool so i'm leaving it that way
+            // discard rooms if they overlap with other rooms.
+            // this allows for edges to overlap, but i think that's cool so i'm leaving it that way
             for (Room room : rooms_) {
-                if (!(((room.GetX1() < x && room.GetX2() < x) || (room.GetX1() > x + width && room.GetX2() > x + width)) || ((room.GetY1() < y && room.GetY2() < y) || (room.GetY1() > y + height && room.GetY2() > y + height)))) {
+                if (!(
+                        ((room.GetX1() < x && room.GetX2() < x) ||
+                            (room.GetX1() > x + width && room.GetX2() > x + width)) ||
+                        ((room.GetY1() < y && room.GetY2() < y) ||
+                                (room.GetY1() > y + height && room.GetY2() > y + height)))) {
                     room_ok = false;
                     break;
                 }
@@ -53,9 +60,10 @@ void Level::GenerateRooms() {
         }
         rooms_.push_back(Room(y, x, width, height));
     }
-    
-    
-    // now create the tunnels between rooms. these are, at least for the time being, represented as more rooms
+}
+
+void Level::GenerateTunnels() {
+    // create the tunnels between rooms. these are, at least for the time being, represented as more rooms
     int num_rooms = rooms_.size();
     for (int i = 0; i < num_rooms - 1; i++) {
         // distributions for target points
@@ -72,7 +80,8 @@ void Level::GenerateRooms() {
         // REVISIT THIS LATER AND MAKE SURE IT DOES WHAT IT'S SUPPOSED TO!
         if (y_first(kRng)) {
             int corner_x = origin_x(kRng);
-            if (!(target[0] >= rooms_[i].GetY1() && target[0] <= rooms_[i].GetY2())) { // if target y doesn't require a vertical tunnel, don't bother
+            if (!(target[0] >= rooms_[i].GetY1() && target[0] <= rooms_[i].GetY2())) {
+                // if target y doesn't require a vertical tunnel, don't bother
                 if (target[0] < rooms_[i].GetY1()){ // if the tunnel needs to go up
                     rooms_.push_back(Room(target[0], corner_x, 1, rooms_[i].GetY1() - target[0]));
                 } else { // otherwise, travel down first
@@ -88,7 +97,8 @@ void Level::GenerateRooms() {
             }
         } else {
             int corner_y = origin_y(kRng);
-            if (!(target[1] >= rooms_[i].GetX1() && target[1] <= rooms_[i].GetX2())) { // if target x doesn't require a horizontal tunnel, don't bother
+            if (!(target[1] >= rooms_[i].GetX1() && target[1] <= rooms_[i].GetX2())) {
+                // if target x doesn't require a horizontal tunnel, don't bother
                 if (target[1] < rooms_[i].GetX1()) { // if the tunnel needs to go left
                     rooms_.push_back(Room(corner_y, target[1], rooms_[i].GetX1() - target[1], 1));
                 } else { // otherwise travel right
@@ -102,7 +112,6 @@ void Level::GenerateRooms() {
             }
         }
     }
-
 }
 
 void Level::ApplyRooms() {

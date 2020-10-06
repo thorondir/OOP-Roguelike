@@ -92,8 +92,18 @@ void RenderHud(Entity* player) {
     // print stat lines
 
     for (int i = 0; i < stats.size(); i++) {
-        mvwprintw(ncurses_hud_window, i + 1, hud_width - 2 - statbox_width, "%s", stat_titles[i].c_str());
-        mvwprintw(ncurses_hud_window, i + 1, hud_width - 1 - GetIntLength(stats[i]), "%d", stats[i]);
+        mvwprintw(
+                ncurses_hud_window,
+                i + 1,
+                hud_width - 2 - statbox_width,
+                "%s",
+                stat_titles[i].c_str());
+
+        mvwprintw(
+                ncurses_hud_window,
+                i + 1,
+                hud_width - 1 - GetIntLength(stats[i]),
+                "%d", stats[i]);
     }
 
     // print messages
@@ -108,7 +118,13 @@ void RenderHud(Entity* player) {
 
         // print each line of the message
         for (int l = 0; l < num_lines; l++) {
-            mvwprintw(ncurses_hud_window, current_term_line - num_lines + l, 1, "%s", hud_messages[i%10].substr((hud_width - 2) * l, (hud_width - 2) * (l + 1)).c_str());
+            mvwprintw(
+                    ncurses_hud_window,
+                    current_term_line - num_lines + l,
+                    1,
+                    "%s",
+                    hud_messages[i%10]
+                        .substr((hud_width - 2) * l,(hud_width - 2) * (l + 1)).c_str());
         }
 
         // move the next print up by the number of lines just printed
@@ -137,7 +153,10 @@ void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) 
 
 void RenderEntities(std::vector<Entity> entities) {
     for (Entity entity : entities) {
-        mvaddch(entity.GetY(),  entity.GetX(), entity.GetAvatar() | COLOR_PAIR(entity.GetColorPair()));
+        mvaddch(
+                entity.GetY(),
+                entity.GetX(),
+                entity.GetAvatar() | COLOR_PAIR(entity.GetColorPair()));
     }
 }
 

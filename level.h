@@ -23,7 +23,7 @@ class Level {
         std::vector<Room> rooms_;
 
         void GenerateRooms();
-        Room GenerateRoom();
+        void GenerateTunnels();
         void ApplyRooms();
         void PopulateRooms();
 };
