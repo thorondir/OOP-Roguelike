@@ -8,7 +8,9 @@
 
 class Item {
     public:
-        Item(std::string, float, float);
+        // item constructor
+        Item(std::string name, float weight, float value) :
+            name_(name), weight_(weight), value_(value) {};
 
         std::string GetName();
         float GetWeight();

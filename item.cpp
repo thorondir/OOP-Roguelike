@@ -1,12 +1,5 @@
 #include "item.h"
 
-// item constructor
-Item::Item(std::string name, float weight, float value) {
-    name_ = name;
-    weight_ = weight;
-    value_ = value;
-}
-
 // return the item's name
 std::string Item::GetName() {
     return name_;
