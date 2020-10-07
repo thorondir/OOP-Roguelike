@@ -24,7 +24,16 @@ class Item {
 
 class EquippableItem : public Item {
     public:
-        EquippableItem(std::string name, float weight, float value, std::array<int, 4> bonuses) : Item(name, weight, value), bonuses_(bonuses) {};
+        EquippableItem(
+                std::string name,
+                float weight,
+                float value,
+                std::array<int, 4> bonuses) :
+                    Item(
+                        name,
+                        weight,
+                        value),
+                    bonuses_(bonuses) {};
 
         Entity* GetUser();
         int GetSlot();
@@ -45,7 +54,8 @@ class ComestibleItem : public Item {
 
 class HealingItem : public ComestibleItem {
     public:
-        HealingItem(std::string name, float weight,  float value, int power) : ComestibleItem(name, weight, value), power_(power) {};
+        HealingItem(std::string name, float weight,  float value, int power) :
+            ComestibleItem(name, weight, value), power_(power) {};
         void Consume(Entity*);
     private:
         int power_;

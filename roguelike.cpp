@@ -1,18 +1,25 @@
 #include "roguelike.h"
 
 int main() {
+    // get ncurses going
     InitialiseRenderer();
 
+    // vector containing all levels
     std::vector<Level> levels;
 
+    // initialise first level
     levels.push_back(Level());
 
+    // input character
     int ch;
 
+    // game loop
     while (ch != 'q') {
+        // render the level and the hud
         RenderLevel(levels[0]);
         RenderHud(&(levels[0].entities_[0]));
 
+        // placeholder input stuff
         ch = getch();
         switch (ch) {
             case KEY_UP:
@@ -34,7 +41,9 @@ int main() {
         }
     }
 
+    // end ncurses
     endwin();
 
+    // everything went perfectly :)
     return 0;
 }

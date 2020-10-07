@@ -1,19 +1,25 @@
 #include "level.h"
 
+// some useful tile definitions
 Tile wall = Tile{true, false, 1, ' '};
 Tile ground = Tile{false, true, 0, ' '};
 
+// random ranges, inclusive
 int max_rooms = 15;
 int min_rooms = 10;
 
 int min_room_size = 3;
 int max_room_size = 10;
 
+// random distribution objects
 std::uniform_int_distribution<> room_y_distribution(1, kMapHeight-max_room_size-1);
 std::uniform_int_distribution<> room_x_distribution(1, kMapWidth-max_room_size-1);
 std::uniform_int_distribution<> room_size_distribution(min_room_size, max_room_size);
 std::uniform_int_distribution<> number_rooms_distribution(min_rooms, max_rooms);
 
+// Level constructor, initialise map array, then fill it with generation. It might be good to separate
+// generation, in order to account for different kinds of levels (ie. creating a virtual `GenerateLevel'
+// function)
 Level::Level() {
     // initialise blank tiles
     for (int i = 0; i < kMapHeight; i++) {
@@ -27,10 +33,12 @@ Level::Level() {
     PopulateRooms();
 }
 
+// return the map array
 std::array<std::array<Tile, kMapWidth>, kMapHeight> Level::GetMap() {
     return map_;
 }
 
+// generate rooms as non-overlapping rectangles, and store them in the rooms vector
 void Level::GenerateRooms() {
     // generate a random number of rooms
     int y,x,width,height;
@@ -62,6 +70,7 @@ void Level::GenerateRooms() {
     }
 }
 
+// generate the tunnels that join the rooms, and store these in the rooms vector
 void Level::GenerateTunnels() {
     // create the tunnels between rooms. these are, at least for the time being, represented as more rooms
     int num_rooms = rooms_.size();
@@ -78,42 +87,77 @@ void Level::GenerateTunnels() {
         int target[2] = {target_y(kRng), target_x(kRng)};
 
         // REVISIT THIS LATER AND MAKE SURE IT DOES WHAT IT'S SUPPOSED TO!
+        // tunnels must not overlap, because it might make the spawning of monsters and other
+        // stuff buggy
         if (y_first(kRng)) {
             int corner_x = origin_x(kRng);
             if (!(target[0] >= rooms_[i].GetY1() && target[0] <= rooms_[i].GetY2())) {
                 // if target y doesn't require a vertical tunnel, don't bother
                 if (target[0] < rooms_[i].GetY1()){ // if the tunnel needs to go up
-                    rooms_.push_back(Room(target[0], corner_x, 1, rooms_[i].GetY1() - target[0]));
+                    rooms_.push_back(Room(
+                                target[0],
+                                corner_x,
+                                1,
+                                rooms_[i].GetY1() - target[0]));
                 } else { // otherwise, travel down first
-                    rooms_.push_back(Room(rooms_[i].GetY2() + 1, corner_x, 1, target[0] - rooms_[i].GetY2()));
+                    rooms_.push_back(Room(
+                                rooms_[i].GetY2() + 1,
+                                corner_x,
+                                1,
+                                target[0] - rooms_[i].GetY2()));
                 }
             }
             if (target[1] < corner_x) { // if the tunnel needs to go left
                 // used corner_x - 1 so edges of tunnel "rooms" don't overlap
-                rooms_.push_back(Room(target[0], rooms_[i+1].GetX2() + 1, (corner_x - 1) - rooms_[i+1].GetX2(), 1));
+                rooms_.push_back(Room(
+                            target[0],
+                            rooms_[i+1].GetX2() + 1,
+                            (corner_x - 1) - rooms_[i+1].GetX2(),
+                            1));
             } else { // otherwise travel right
                 // used corner_x + 1 so edges of tunnel "rooms" don't overlap
-                rooms_.push_back(Room(target[0], corner_x + 1, rooms_[i+1].GetX1() - (corner_x + 1), 1));
+                rooms_.push_back(Room(
+                            target[0],
+                            corner_x + 1,
+                            rooms_[i+1].GetX1() - (corner_x + 1),
+                            1));
             }
         } else {
             int corner_y = origin_y(kRng);
             if (!(target[1] >= rooms_[i].GetX1() && target[1] <= rooms_[i].GetX2())) {
                 // if target x doesn't require a horizontal tunnel, don't bother
                 if (target[1] < rooms_[i].GetX1()) { // if the tunnel needs to go left
-                    rooms_.push_back(Room(corner_y, target[1], rooms_[i].GetX1() - target[1], 1));
+                    rooms_.push_back(Room(
+                                corner_y,
+                                target[1],
+                                rooms_[i].GetX1() - target[1],
+                                1));
                 } else { // otherwise travel right
-                    rooms_.push_back(Room(corner_y, rooms_[i].GetX2() + 1, target[1] - rooms_[i].GetX2(), 1));
+                    rooms_.push_back(Room(
+                                corner_y,
+                                rooms_[i].GetX2() + 1,
+                                target[1] - rooms_[i].GetX2(),
+                                1));
                 }
             }
             if (target[0] < corner_y) { // if the tunnel needs to go up
-                rooms_.push_back(Room(rooms_[i+1].GetY2() + 1, target[1], 1, (corner_y - 1) - rooms_[i+1].GetY2()));
+                rooms_.push_back(Room(
+                            rooms_[i+1].GetY2() + 1,
+                            target[1],
+                            1,
+                            (corner_y - 1) - rooms_[i+1].GetY2()));
             } else { // otherwise travel down
-                rooms_.push_back(Room(corner_y + 1, target[1], 1, (rooms_[i+1].GetY1() - 1) - corner_y));
+                rooms_.push_back(Room(
+                            corner_y + 1,
+                            target[1],
+                            1,
+                            (rooms_[i+1].GetY1() - 1) - corner_y));
             }
         }
     }
 }
 
+// carve out the rooms (including tunnels) in the map array
 void Level::ApplyRooms() {
     for (Room room : rooms_) {
         for (int y = 0; y < room.GetHeight(); y++) {
@@ -124,6 +168,7 @@ void Level::ApplyRooms() {
     }
 }
 
+// fill the rooms with entities, loot, and other fun stuff
 void Level::PopulateRooms() {
     entities_.push_back(Player((rooms_[0].GetY1() + rooms_[0].GetY2())/2, (rooms_[0].GetX1() + rooms_[0].GetX2())/2));
 }

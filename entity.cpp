@@ -2,6 +2,7 @@
 
 int Entity::next_id_ = 0;
 
+// entity constructor, initialise default entity variables
 Entity::Entity(std::string name, std::string description, int y, int x, char avatar) {
     name_ = name;
     description_ = description;
@@ -25,16 +26,22 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
     equipment_slots_[2] = 1; // 1 torso
     equipment_slots_[3] = 2; // 2 feet
 
-    friendly_ = true; // default entity shouldn't be attacked (environment entities which are destructible shouldn't be killed by the player)
-    doormat_ = true; // player should be able to walk over the default entity? might be worth changing
+    friendly_ = true;    
+    // defines whether the player will attack when moving into this entity
+    // the player shouldn't attack the default entity (monsters are a special case)
 
-    living_ = false; // monsters attack living things, but shouldn't attack any entity
+    doormat_ = true;
+    // defines whether other can walk over/through this entity's tile
+    // player should be able to walk over the default entity? might be worth changing
+
+    living_ = false; // monsters attack living things, but shouldn't attack every entity
     dead_ = false; // entities start alive
 
     color_pair_ = 0;
 }
 
-// return the x coordinate of the entity, perhaps make this more elegant in terms of returning both y and x as a pair?
+// return the x coordinate of the entity
+// perhaps make this more elegant in terms of returning both y and x as a pair?
 int Entity::GetX() {
     return x_;
 }
@@ -55,7 +62,9 @@ std::string Entity::GetName() {
 }
 
 // return the id number of the entity.
-// this can doesn't get reset at all until the end of execution, so it will continually increase even after changing levels etc (not sure how this interacts with moving the player entity...)
+// this can doesn't get reset at all until the end of execution,
+// so it will continually increase even after changing levels etc
+// (not sure how this interacts with moving the player entity between levels...)
 int Entity::GetId() {
     return id_;
 }
@@ -105,7 +114,8 @@ void Entity::Damage() {
 
 } */
 
-// heal this entity. it might be worth making this virtual and/or adding a heal bonus stat or something like that
+// heal this entity. it might be worth making this virtual and/or adding a
+// heal bonus stat or something like that
 void Entity::Heal(int heal) {
     hp_ += heal;
 }

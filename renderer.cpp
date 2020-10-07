@@ -12,6 +12,7 @@ int hud_width;
 int hud_message_number = 0;
 std::string hud_messages[10];
 
+// predefine local functions
 void RenderEntities(std::vector<Entity>);
 void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight>);
 
@@ -29,6 +30,7 @@ int GetIntLength(int num) {
     return digits;
 }
 
+// initialise ncurses, and its variables such as colours etc
 void InitialiseRenderer() {
     // initialise ncurses
     initscr();
@@ -70,6 +72,7 @@ void InitialiseRenderer() {
     bkgd(' ' | COLOR_PAIR(0));
 }
 
+// render the hud
 void RenderHud(Entity* player) {
     wclear(ncurses_hud_window);
     box(ncurses_hud_window, 0, 0);
@@ -89,8 +92,8 @@ void RenderHud(Entity* player) {
             statbox_width = stat_titles[i].length() + GetIntLength(stats[i]);
         }
     }
-    // print stat lines
 
+    // print stat lines
     for (int i = 0; i < stats.size(); i++) {
         mvwprintw(
                 ncurses_hud_window,
@@ -131,9 +134,11 @@ void RenderHud(Entity* player) {
         current_term_line -= num_lines;
     }
 
+    // finally, refresh the hud window
     wrefresh(ncurses_hud_window);
 }
 
+// render the main level window
 void RenderLevel(Level level) {
     wclear(stdscr);
 
@@ -143,6 +148,7 @@ void RenderLevel(Level level) {
     refresh();
 }
 
+// loop through the map, and render the corresponding tiles
 void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) {
     for (int y = 0; y < kMapHeight; y++) {
         for (int x = 0; x < kMapWidth; x++) {
@@ -151,6 +157,7 @@ void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) 
     }
 }
 
+// loop through entities and render those on top of the map
 void RenderEntities(std::vector<Entity> entities) {
     for (Entity entity : entities) {
         mvaddch(
@@ -160,6 +167,7 @@ void RenderEntities(std::vector<Entity> entities) {
     }
 }
 
+// add a message to the hud
 void AddHudMessage(std::string message) {
     hud_messages[hud_message_number++ % 10] = message;
 }
