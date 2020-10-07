@@ -14,13 +14,18 @@
 class Level {
     public:
         Level();
+        ~Level();
 
-        std::vector<Entity> entities_;
-        std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
+        void FreeEntities();
+
+        std::vector<Entity*> entities_;
 
         std::array<std::array<Tile, kMapWidth>, kMapHeight> GetMap();
+        std::vector<Room> GetRooms();
+
     private:
         std::vector<Room> rooms_;
+        std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
 
         void GenerateRooms();
         void GenerateTunnels();

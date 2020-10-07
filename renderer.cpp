@@ -12,9 +12,13 @@ int hud_width;
 int hud_message_number = 0;
 std::string hud_messages[10];
 
-// predefine local functions
-void RenderEntities(std::vector<Entity>);
+// predefine local functions for rendering level
+void RenderEntities(std::vector<Entity*>);
 void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight>);
+
+// predefine local functions for rendering hud
+void PrintHudMessages();
+
 
 // helper function to get the number of characters to be printed when printing int
 int GetIntLength(int num) {
@@ -109,17 +113,29 @@ void RenderHud(Entity* player) {
                 "%d", stats[i]);
     }
 
-    // print messages
+    // add the hud messages
+    PrintHudMessages();
+
+    // finally, refresh the hud window
+    wrefresh(ncurses_hud_window);
+}
+
+// print messages
+void PrintHudMessages() {
+    // keep track of the line currently being printed on
     int current_term_line = screen_height-1;
     for (int i = hud_message_number - 1; i > hud_message_number - 10; i--) {
+        // stop printing if we've run out of messages, or the messages would print too
+        // (thus preventing printing over other hud information)
         if (i < 0 || current_term_line <= 10) {
             break;
         }
 
-        // print messages[i%10]
+        // get the number  of lines this message will take up
         int num_lines = ceil(hud_messages[i%10].length() / (float) (hud_width - 2));
 
-        // print each line of the message
+        // print each line of the message, with a maximum number of characters equal to the
+        // width of the hud - 2 (since there are two border characters)
         for (int l = 0; l < num_lines; l++) {
             mvwprintw(
                     ncurses_hud_window,
@@ -133,16 +149,13 @@ void RenderHud(Entity* player) {
         // move the next print up by the number of lines just printed
         current_term_line -= num_lines;
     }
-
-    // finally, refresh the hud window
-    wrefresh(ncurses_hud_window);
 }
 
 // render the main level window
 void RenderLevel(Level level) {
     wclear(stdscr);
 
-    RenderEnvironment(level.map_);
+    RenderEnvironment(level.GetMap());
     RenderEntities(level.entities_);
 
     refresh();
@@ -158,12 +171,12 @@ void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) 
 }
 
 // loop through entities and render those on top of the map
-void RenderEntities(std::vector<Entity> entities) {
-    for (Entity entity : entities) {
+void RenderEntities(std::vector<Entity*> entities) {
+    for (Entity* entity : entities) {
         mvaddch(
-                entity.GetY(),
-                entity.GetX(),
-                entity.GetAvatar() | COLOR_PAIR(entity.GetColorPair()));
+                entity->GetY(),
+                entity->GetX(),
+                entity->GetAvatar() | COLOR_PAIR(entity->GetColorPair()));
     }
 }
 

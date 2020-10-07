@@ -33,9 +33,27 @@ Level::Level() {
     PopulateRooms();
 }
 
+// level destructor, left blank here as a reminder not to delete anything in the destructor
+// this is because the destructor is called when std::vector reallocates
+Level::~Level() {
+    // don't delete anything!
+}
+
+// free all entities (make sure to remove entities that need to be moved before doing this)
+void Level::FreeEntities() {
+    for (Entity* entity : entities_) {
+        delete entity;
+    }
+}
+
 // return the map array
 std::array<std::array<Tile, kMapWidth>, kMapHeight> Level::GetMap() {
     return map_;
+}
+
+// return the rooms vector
+std::vector<Room> Level::GetRooms() {
+    return rooms_;
 }
 
 // generate rooms as non-overlapping rectangles, and store them in the rooms vector
@@ -170,5 +188,4 @@ void Level::ApplyRooms() {
 
 // fill the rooms with entities, loot, and other fun stuff
 void Level::PopulateRooms() {
-    entities_.push_back(Player((rooms_[0].GetY1() + rooms_[0].GetY2())/2, (rooms_[0].GetX1() + rooms_[0].GetX2())/2));
 }
