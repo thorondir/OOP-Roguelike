@@ -37,12 +37,75 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
     \item Objects will be used to model all aspects of the game environment, such as objects representing terrain tiles, and game entities.
     \item \textbf{Inheritance:} In order to implement various types of animated entities in the game, such as the player, as well as monsters that might oppose the player, a parent class to model a living creature will be used.
     \item \textbf{Inheritance:} Items in the game must all be able to do certain things, such as getting picked up by the player, or being dropped, or used. Thus, all items must inherit a base ``item'' class, while each individual item type may incorporate unique behaviours.
+    \item \textbf{Polymorphism:} Items in the game will exist as one of multiple subtypes, such as equippable items, generic items, and comestible items, which will be implemented using another \textbf{abstract} class which will include a virtual function for the consumption of that item.
 \end{itemize}
-\subsubsection{Testing}
-\begin{itemize}
-    \item The functionality of individual processes in the game will be tested manually by integration testing.
-    \item In addition, unit testing will be used to verify that behaviours such as applying damage to creatures works properly.
-\end{itemize}
+\subsection{Testing}
+\subsubsection{Unit Testing}
+Unit testing will be used to verify that individual class methods are functioning corrently through the calling of getters and setters in a separate c++ program. For example, the following code will test an entity's movement.
+\begin{verbatim}
+Entity entity(
+    "Test Entity",
+    "This is an entity instantiated for the purpose of testing the Move(int y, int x) function.",
+    0,
+    0,
+    `T');
+entity.move(0,1);
+if (entity.GetX() == 1) {
+    std::cout << "Entity::move(int y, int x)...... OK" << std::endl;
+} else {
+    std::cout << "Entity::move(int y, int x)...... FAILED! Entity::GetX() returned " <<
+        entity.GetX() << std::endl;
+}
+\end{verbatim}
+\subsubsection{Integration Testing}
+Some of the game's processes will not be easily testable using unit testing, so integration testing will be used to verify that elements of the user experience are funtioning correctly.
+
+For example, the following integration test will be used to exhaustively verify that orthogonal movement will be perceived to function correctly:
+\begin{verbatim}
+[Game Start]
+[Player presses up arrow]:  
+    Player Entity's `@' character moves up on the screen by one character.
+    A debug message appears in the HUD indicating that the player moved up.
+[Player presses down arrow]:
+    Player Entity's `@' character moves down on the screen by one character.
+    The previous debug message moves up to make space for the next.
+    A debug message appears at the bottom of the HUD indicating that the player moved down.
+[Player presses left arrow]:
+    Player Entity's `@' character moves left on the screen by one character.
+    All previous debug messages move up to make space for the next.
+    A debug message appears at the bottom of the HUD indicating that the player moved down.
+[Player presses right arrow]:
+    Player Entity's `@' character moves right on the screen by one character.
+    All previous debug messages move up to make space for the next.
+    A debug message appears at the bottom of the HUD indicating that the player moved right.
+\end{verbatim}
+\subsection{Class Descriptions}
+\subsubsection{Entity}
+This will be a class describing a physical object within the game, excepting terrain. This object will be used to represent both animated entities, such as monsters and players, as well as inanimate objects, such as items. This object stores the health of the entity, as well as various properties including name and position.
+
+\textbf{Base Class:} The base class will describe a generic entity, which will be used to create inanimate objects in the world such as boulders.
+
+\textbf{Player:} The player is one of two types of animate entities in the game, of which this one will be controlled by the player. This class differs from the base entity in that it keeps track of inventory including weight.
+
+\textbf{Enemy:} Similar to the player, this represents the other type of animate entity. This class differs from the base entity in that it keeps track of an inventory (loot), and contains methods to drop the loot and attack the player.
+
+\textbf{ItemEntity:} A unique type of entity, this represents a physical item in space, able to be picked up by an animate being in the world. Thus, this object tracks the corresponding \textit{Item} object, and contains methods to be picked up.
+\subsubsection{Item}
+This class represents an item as it exists within the storage some other entity, and thus includes information about the item's properties such as value and weight.
+
+\textbf{Base Class:} The base class will simply contain the item's weight and value information, thus representing the most basic of items, such as money or rocks.
+
+\textbf{EquippableItem:} The \textit{EquippableItem} subclass represents an item that can be equipped by another entity, and thus includes variables that track which item slot it is relevant to, and the buffs provided by the item.
+
+\textbf{ComestibleItem:} This subclass is an abstract class representing an item that can be consumed by an entity, and thus includes a virtual function for the effects upon consumption.
+
+\textbf{HealingItem : ComestibleItem:} The \textit{HealingItem} is an example of a \textit{ComestibleItem} which would implement a Consume method that would heal the user.
+\subsubsection{Level}
+The \textit{Level} object will represent a level of the game world. Thus, the class includes member variables for storing entities and environment information relevant to a particular level.
+\subsubsection{Room}
+The \textit{Room} object contains the information relevant to a single room within the world, and includes methods for calculating useful information about the room, such as its area.
+\subsubsection{Tile}
+\textit{Tile} is a struct that contains the information relevant to a single type of tile within the world, such as a floor or a wall.
 \subsection{Class Diagrams}
 \begin{figure}[h] \center
 \begin{tikzpicture}
@@ -51,13 +114,14 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
         \# x : int\\
         \# y : int\\
         \# hp : int\\
-        \# stats : int[3]\\
-        \# equipment\_slots : int[4]\\
+        \# stats : array<int, 4>\\
+        \# equipment\_slots : array<int, 4>\\
         \# equipment : vector<EquippableItem>\\
         \# friendly : bool\\
         \# doormat : bool\\
         \# living : bool\\
         \# dead : bool\\
+        \# color\_pair : short\\
         -- name : string\\
         -- description : string\\
         -- avatar : char\\
@@ -66,18 +130,21 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
         + GetX() : int\\
         + GetY() : int\\
         + GetAvatar() : char\\
+        + GetName() : string\\
         + GetId() : int\\
-        + GetStats() : int[3]\\
+        + GetHP() : int\\
+        + GetStats() : array<int, 4>\\
+        + GetColorPair() : short\\
         + Move(y : int, x : int) : void\\
         + SetPos(y : int, x : int) : void\\
         + TakeDamage(damage : int)\\
-        + Damage(other\_id : int)\\
         + Heal(heal : int)
     }
     \umlclass[x=-4, y=-14]{Player}{
         -- inventory : vector<pair<item, int>{>}\\
         -- max\_weight : float
         }{
+        + Player(y : int, x : int)\\
         -- GetInvenWeight() : float
     }
     \umlclass[x=0, y=-10]{Enemy}{
@@ -102,6 +169,7 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
 \end{tikzpicture}
 \caption{Entity Class Diagram}
 \end{figure}
+
 \begin{figure}[h] \center
 \begin{tikzpicture}
     \umlclass{Item}{
@@ -109,28 +177,34 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
         -- weight : float\\
         -- value : float\\
         }{
+        + Item(name : string, weight : float, value : float)\\
         + GetName() : string\\
         + GetWeight() : float\\
         + GetValue() : float\\
-        + Drop(y : int, x : int) : void\\
+        + Drop(y : int, x : int) : void
     }
     \umlclass[x=-3,y=-6]{EquippableItem}{
         -- user : *entity\\
-        -- bonuses : int[3]\\
+        -- bonuses : array<int, 4>\\
         -- slot : int\\
         }{
+        + EquippableItem(\\
+        \   name : string,\\
+        \   weight : float,\\
+        \   value : float,\\
+        \   bonuses : array<int, 4>)\\
         + GetUser() : *entity\\
         + GetSlot() : int\\
         + GetBonuses : int[3]\\
-        + SetUser(user : *entity) : void\\
+        + SetUser(user : Entity*) : void\\
     }
     \umlclass[type=abstract,x=3,y=-6]{ComestibleItem}{
         }{
-        + virtual Consume(user: *entity) : void
+        + virtual Consume(user: Entity*) : void
     }
     \umlclass[x=3,y=-12]{HealingItem}{
         }{
-        + Consume(user : *entity) : void 
+        + Consume(user : Entity*) : void 
     }
     \umlinherit[geometry=|-|]{EquippableItem}{Item}
     \umlinherit[geometry=|-|]{ComestibleItem}{Item}
@@ -139,14 +213,18 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
 \end{tikzpicture}
 \caption{Item Class Diagram}
 \end{figure}
+
 \begin{figure}[h] \center
 \begin{tikzpicture}
     \umlclass{Level}{
-        -- map : Tile[45][80]\\
+        -- map : array<array<Tile, 45>, 80>\\
         -- rooms : vector<Room>\\
         + entities : vector<Entity>\\
         }{
+        + GetRooms() : vector<Room>\\
+        + GetMap() : array<array<Tile, 45>, 80>\\
         -- GenerateRooms() : void\\
+        -- GenerateTunnels() : void\\
         -- ApplyRooms() : void\\
         -- PopulateRooms() : void\\
     }
@@ -156,6 +234,11 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
         -- w : int\\
         -- h : int
         }{
+        + Room(\\
+        \   y : int,\\
+        \   x : int,\\
+        \   w : int,\\
+        \   h : int)\\
         + GetY1()\\
         + GetX1()\\
         + GetY2()\\
@@ -176,24 +259,4 @@ This project is a Rogue-like Role Playing Game implemented using the ncurses lib
 \end{tikzpicture}
 \caption{Level Class Diagram}
 \end{figure}
-\begin{figure}[h] \center
-\begin{tikzpicture}
-    \umlclass{Renderer}{
-        -- screen\_width\\
-        -- screen\_height\\
-        -- hud\_start\_x\\
-        -- messages : string[40]
-        }{
-        + render\_level(level : Level)\\
-        + render\_hud(player : *Player)\\
-    }
-\end{tikzpicture}
-\caption{Renderer Class Diagram}
-\end{figure}
-\subsection{Class Descriptions}
-\subsubsection{Game}
-This will be the main object representing the game in its entirety, containing the instances for other objects, such as the UI, the renderer, and the levels.
-\subsubsection{UI}
-The UI object will contain the code which will control the renderer object
 \end{document}
-
