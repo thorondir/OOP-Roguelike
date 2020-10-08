@@ -23,7 +23,7 @@ int main() {
     // game loop
     while (ch != 'q') {
         // render the level and the hud
-        RenderLevel(levels[0]);
+        RenderLevel(&levels[0]);
         RenderHud(levels[0].entities_[0]);
 
         // placeholder input stuff
@@ -47,8 +47,6 @@ int main() {
                 break;
         }
     }
-    levels[0].entities_[0] = nullptr;
-    levels[0].FreeEntities();
     // end ncurses
     endwin();
 

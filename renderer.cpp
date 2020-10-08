@@ -152,11 +152,11 @@ void PrintHudMessages() {
 }
 
 // render the main level window
-void RenderLevel(Level level) {
+void RenderLevel(Level* level) {
     wclear(stdscr);
 
-    RenderEnvironment(level.GetMap());
-    RenderEntities(level.entities_);
+    RenderEnvironment(level->GetMap());
+    RenderEntities(level->entities_);
 
     refresh();
 }

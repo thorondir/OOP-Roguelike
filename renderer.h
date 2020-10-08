@@ -15,7 +15,7 @@
 void InitialiseRenderer();
 
 void RenderHud(Entity*);
-void RenderLevel(Level);
+void RenderLevel(Level*);
 
 void AddHudMessage(std::string);
 

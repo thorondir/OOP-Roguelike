@@ -22,6 +22,8 @@ struct Tile {
     bool transparent;
     int color_pair;
     char character;
+    bool seen;
+    bool lit;
 };
 
 #endif

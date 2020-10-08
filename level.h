@@ -16,8 +16,6 @@ class Level {
         Level();
         ~Level();
 
-        void FreeEntities();
-
         std::vector<Entity*> entities_;
 
         std::array<std::array<Tile, kMapWidth>, kMapHeight> GetMap();

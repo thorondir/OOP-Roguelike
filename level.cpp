@@ -1,8 +1,8 @@
 #include "level.h"
 
 // some useful tile definitions
-Tile wall = Tile{true, false, 1, ' '};
-Tile ground = Tile{false, true, 0, ' '};
+Tile wall = Tile{true, false, 1, ' ', false, false};
+Tile ground = Tile{false, true, 0, ' ', false, false};
 
 // random ranges, inclusive
 int max_rooms = 15;
@@ -33,14 +33,9 @@ Level::Level() {
     PopulateRooms();
 }
 
-// level destructor, left blank here as a reminder not to delete anything in the destructor
-// this is because the destructor is called when std::vector reallocates
-Level::~Level() {
-    // don't delete anything!
-}
-
+// level destructor
 // free all entities (make sure to remove entities that need to be moved before doing this)
-void Level::FreeEntities() {
+Level::~Level() {
     for (Entity* entity : entities_) {
         delete entity;
     }
