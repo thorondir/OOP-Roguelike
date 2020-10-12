@@ -8,5 +8,6 @@
 #include "player.h"
 #include "renderer.h"
 #include "level.h"
+#include "spiralpath.h"
 
 #endif

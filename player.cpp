@@ -9,3 +9,14 @@ float Player::GetInvenWeight() {
     return weight;
 }
 
+std::vector<std::vector<bool>> Player::GetFOV() {
+    return FOV.SpiralPath(y_, x_);
+}
+
+void Player::UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap) {
+    for (int y = 0; y < kMapHeight; y++) {
+        for (int x = 0; x < kMapWidth; x++) {
+            FOV.transparentmap_[y][x] = transparentmap[y][x];
+        }
+    }
+}

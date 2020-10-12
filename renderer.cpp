@@ -62,15 +62,21 @@ void InitialiseRenderer() {
     init_color(COLOR_BLACK, 0, 0, 0);
     init_color(COLOR_RED, 1000, 0, 0);
     init_color(COLOR_GREEN, 0, 1000, 0);
-    init_color(COLOR_YELLOW, 0, 1000, 1000);
-    init_color(COLOR_BLUE, 0, 0, 1000);
+    init_color(COLOR_YELLOW, 1000, 1000, 0);
+    init_color(COLOR_BLUE, 1000, 0, 800);
     init_color(COLOR_MAGENTA, 1000, 0, 1000);
     init_color(COLOR_CYAN, 0, 1000, 1000);
     init_color(COLOR_WHITE, 1000, 1000, 1000);
+    init_color(8, 0, 0, 500);
+    //init_color(9, 800, 800, 800);
+    init_color(10, 0, 100, 100);
 
     // initialise colour pairs
     init_pair(0, COLOR_BLACK, COLOR_BLACK);
     init_pair(1, COLOR_BLUE, COLOR_BLUE);
+    init_pair(2, 8, 8);
+    init_pair(3, COLOR_CYAN, COLOR_CYAN);
+    init_pair(4, 10, 10); // dark cyan
 
     // define background
     bkgd(' ' | COLOR_PAIR(0));
@@ -155,7 +161,7 @@ void PrintHudMessages() {
 void RenderLevel(Level* level) {
     wclear(stdscr);
 
-    RenderEnvironment(level->GetMap());
+    RenderEnvironment(level->map_);
     RenderEntities(level->entities_);
 
     refresh();
@@ -165,7 +171,13 @@ void RenderLevel(Level* level) {
 void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) {
     for (int y = 0; y < kMapHeight; y++) {
         for (int x = 0; x < kMapWidth; x++) {
-            mvaddch(y, x, map[y][x].character | COLOR_PAIR(map[y][x].color_pair));
+            if (map[y][x].lit) {
+                mvaddch(y, x, map[y][x].character | COLOR_PAIR(map[y][x].lit_color_pair));
+            } else {
+                if (map[y][x].seen) {
+                    mvaddch(y, x, map[y][x].character | COLOR_PAIR(map[y][x].unlit_color_pair));
+                }
+            }
         }
     }
 }

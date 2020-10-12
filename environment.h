@@ -20,7 +20,8 @@ class Room {
 struct Tile {
     bool blocking;
     bool transparent;
-    int color_pair;
+    int lit_color_pair;
+    int unlit_color_pair;
     char character;
     bool seen;
     bool lit;

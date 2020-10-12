@@ -1,8 +1,8 @@
 #include "level.h"
 
 // some useful tile definitions
-Tile wall = Tile{true, false, 1, ' ', false, false};
-Tile ground = Tile{false, true, 0, ' ', false, false};
+Tile wall = Tile{true, false, 1, 2, ' ', false, false};
+Tile ground = Tile{false, true, 3, 4, ' ', false, false};
 
 // random ranges, inclusive
 int max_rooms = 15;
@@ -39,11 +39,6 @@ Level::~Level() {
     for (Entity* entity : entities_) {
         delete entity;
     }
-}
-
-// return the map array
-std::array<std::array<Tile, kMapWidth>, kMapHeight> Level::GetMap() {
-    return map_;
 }
 
 // return the rooms vector
