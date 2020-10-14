@@ -15,6 +15,10 @@ int main() {
             (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
             (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2);
     // put the player into the first level
+    levels[0].entities_.push_back(new Enemy("Sawbot","it's sawbot",
+            (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
+            (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2 + 1,
+            's'));
     levels[0].entities_.push_back(player);
 
     std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
@@ -27,11 +31,17 @@ int main() {
 
     player->UpdateFOVTransparent(transparentmap);
 
-    // input character
-    int ch;
+    // creat the main log
+    main_log = new Log("Main");
 
     // game loop
-    while (ch != 'q') {
+    do {
+        //for (int i = 0; i < levels[0].entities_.size(); i++) {
+        //    levels[0].entities_[i]->Brain(levels[0].map_, levels[0].entities_);
+        //}
+        levels[0].entities_[0]->Brain(levels[0].map_, levels[0].entities_);
+        player->Brain(levels[0].map_, levels[0].entities_);
+
         // render the level and the hud
         std::vector<std::vector<bool>> visible = player->GetFOV();
 
@@ -47,31 +57,13 @@ int main() {
         }
 
         RenderLevel(&levels[0]);
-        RenderHud(levels[0].entities_[0]);
+        AddLogMessages(main_log);
+        RenderHud(player);
 
-        // placeholder input stuff
-        ch = getch();
-        switch (ch) {
-            case KEY_UP:
-                player->Move(-1, 0, levels[0].map_);
-                AddHudMessage("Player Moved Up!");
-                break;
-            case KEY_DOWN:
-                player->Move(1, 0, levels[0].map_);
-                AddHudMessage("Player Moved Down!");
-                break;
-            case KEY_LEFT:
-                player->Move(0, -1, levels[0].map_);
-                AddHudMessage("Player Moved Left!");
-                break;
-            case KEY_RIGHT:
-                player->Move(0, 1, levels[0].map_);
-                AddHudMessage("Player Moved Right!");
-                break;
-        }
-    }
+    } while (!input());
     // end ncurses
     endwin();
+    delete main_log;
 
     // everything went perfectly :)
     return 0;

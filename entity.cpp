@@ -40,6 +40,9 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
     color_pair_ = 0;
 }
 
+Entity::~Entity() {
+}
+
 // return the x coordinate of the entity
 // perhaps make this more elegant in terms of returning both y and x as a pair?
 int Entity::GetX() {
@@ -84,16 +87,31 @@ short Entity::GetColorPair() {
     return color_pair_;
 }
 
-// for both the following methods, the entity can move out of bounds. i don't care.
+void Entity::Brain(map_type map, std::vector<Entity*> entities) {
+    return;
+}
 
-// move entity some number of units
-void Entity::Move(int dy, int dx, std::array<std::array<Tile, kMapWidth>, kMapHeight> map) {
+// for both the following methods, the entity can move out of bounds. i don't care.
+void Entity::MoveAttack(int dy, int dx, map_type map, std::vector<Entity*> residents) {
     int new_y = y_ + dy;
     int new_x = x_ + dx;
-    if (!map[new_y][new_x].blocking) {
-        y_ = new_y;
-        x_ = new_x;
+
+    for (Entity* target : residents) {
+        if (target->GetY() == new_y && target->GetX() == new_x) {
+            main_log->AddMessage(std::string("").append(name_).append(std::string(" attacks ")).append(target->GetName()));
+            return;
+        }
     }
+
+    if (!map[new_y][new_x].blocking) {
+        Move(dy, dx);
+    }
+}
+
+// move entity some number of units
+void Entity::Move(int dy, int dx) {
+    y_ += dy;
+    x_ += dx;
 }
 
 // set entity's location to arguments

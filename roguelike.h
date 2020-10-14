@@ -5,9 +5,12 @@
 #include <vector>
 #include <random>
 
-#include "player.h"
+#include "logger.h"
 #include "renderer.h"
 #include "level.h"
 #include "spiralpath.h"
+#include "input.h"
+#include "player.h"
+#include "enemy.h"
 
 #endif

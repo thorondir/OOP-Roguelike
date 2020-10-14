@@ -1,6 +1,11 @@
 #ifndef ENVIRONMENT_H_
 #define ENVIRONMENT_H_
 
+#include <vector>
+#include <array>
+
+#include "constants.h"
+
 class Room {
     public:
         Room(int y, int x, int w, int h) : y_(y), x_(x), width_(w), height_(h) {};
@@ -26,5 +31,7 @@ struct Tile {
     bool seen;
     bool lit;
 };
+
+typedef std::array<std::array<Tile, kMapWidth>, kMapHeight> map_type;
 
 #endif

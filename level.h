@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "entity.h"
-#include "player.h"
+#include "enemy.h"
 #include "environment.h"
 #include "constants.h"
 #include "rng.h"

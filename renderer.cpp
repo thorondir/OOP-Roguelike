@@ -13,8 +13,8 @@ int hud_message_number = 0;
 std::string hud_messages[10];
 
 // predefine local functions for rendering level
-void RenderEntities(std::vector<Entity*>);
-void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight>);
+void RenderEntities(std::vector<Entity*>, map_type);
+void RenderEnvironment(map_type);
 
 // predefine local functions for rendering hud
 void PrintHudMessages();
@@ -162,13 +162,13 @@ void RenderLevel(Level* level) {
     wclear(stdscr);
 
     RenderEnvironment(level->map_);
-    RenderEntities(level->entities_);
+    RenderEntities(level->entities_, level->map_);
 
     refresh();
 }
 
 // loop through the map, and render the corresponding tiles
-void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) {
+void RenderEnvironment(map_type map) {
     for (int y = 0; y < kMapHeight; y++) {
         for (int x = 0; x < kMapWidth; x++) {
             if (map[y][x].lit) {
@@ -183,16 +183,20 @@ void RenderEnvironment(std::array<std::array<Tile, kMapWidth>, kMapHeight> map) 
 }
 
 // loop through entities and render those on top of the map
-void RenderEntities(std::vector<Entity*> entities) {
+void RenderEntities(std::vector<Entity*> entities, map_type map) {
     for (Entity* entity : entities) {
-        mvaddch(
-                entity->GetY(),
-                entity->GetX(),
-                entity->GetAvatar() | COLOR_PAIR(entity->GetColorPair()));
+        if (map[entity->GetY()][entity->GetX()].lit) {
+            mvaddch(
+                    entity->GetY(),
+                    entity->GetX(),
+                    entity->GetAvatar() | COLOR_PAIR(entity->GetColorPair()));
+        }
     }
 }
 
 // add a message to the hud
-void AddHudMessage(std::string message) {
-    hud_messages[hud_message_number++ % 10] = message;
+void AddLogMessages(Log* log) {
+    while (log->GetUnreads() > 0) {
+        hud_messages[hud_message_number++ % 10] = log->GetMessage();
+    }
 }

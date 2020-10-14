@@ -37,7 +37,7 @@ Level::Level() {
 // free all entities (make sure to remove entities that need to be moved before doing this)
 Level::~Level() {
     for (Entity* entity : entities_) {
-        delete entity;
+        //delete entity;
     }
 }
 
@@ -95,7 +95,7 @@ void Level::GenerateTunnels() {
         int target[2] = {target_y(kRng), target_x(kRng)};
 
         // REVISIT THIS LATER AND MAKE SURE IT DOES WHAT IT'S SUPPOSED TO!
-        // tunnels must not overlap, because it might make the spawning of monsters and other
+        // tunnels must not overlap, because it might make the spawning of enemys and other
         // stuff buggy
         if (y_first(kRng)) {
             int corner_x = origin_x(kRng);
@@ -178,4 +178,21 @@ void Level::ApplyRooms() {
 
 // fill the rooms with entities, loot, and other fun stuff
 void Level::PopulateRooms() {
+    /*
+    for (Room room : rooms_) {
+        float area = room.GetArea();
+        std::uniform_int_distribution<> num_enemies(0, (area*3)/25);
+
+        for (int i = 0; i < num_enemies(kRng); i++) {
+            std::uniform_int_distribution<> enemy_y(room.GetY1(), room.GetY2());
+            std::uniform_int_distribution<> enemy_x(room.GetX1(), room.GetX2());
+            entities_.push_back(new Enemy(
+                        "Sawbot",
+                        "A cheap, unadorned steel cube with a spinning vibroblade that seems to rip even the air around it.",
+                        //room.GetY1() + enemy_y(kRng),
+                        //room.GetX1() + enemy_x(kRng),
+                        room.GetY2()-1, room.GetX2()-1,
+                        's'));
+        }
+    }*/
 }

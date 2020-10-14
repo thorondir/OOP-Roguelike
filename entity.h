@@ -3,13 +3,16 @@
 
 #include <string>
 #include <array>
+#include <vector>
 
+#include "logger.h"
 #include "constants.h"
 #include "environment.h"
 
 class Entity {
     public:
         Entity(std::string, std::string, int, int, char);
+        virtual ~Entity();
 
         static int next_id_;
 
@@ -23,7 +26,11 @@ class Entity {
         std::array<int, 4> GetStats(); // this is known to be int[4], which will not change
         short GetColorPair();
         void SetPos(int, int);
-        void Move(int, int, std::array<std::array<Tile, kMapWidth>, kMapHeight>);
+
+        virtual void Brain(map_type, std::vector<Entity*>); // picks an action
+        void Move(int, int);
+        void MoveAttack(int, int, map_type, std::vector<Entity*>);
+
         void TakeDamage(int);
         //void Damage(int);
         void Heal(int);

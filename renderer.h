@@ -7,16 +7,17 @@
 #include <vector>
 #include <cmath>
 
+#include "logger.h"
 #include "entity.h"
 #include "level.h"
 #include "environment.h"
 #include "constants.h"
 
-void InitialiseRenderer();
+extern void InitialiseRenderer();
 
-void RenderHud(Entity*);
-void RenderLevel(Level*);
+extern void RenderHud(Entity*);
+extern void RenderLevel(Level*);
 
-void AddHudMessage(std::string);
+extern void AddLogMessages(Log*);
 
 #endif
