@@ -1,5 +1,6 @@
 *.o
 roguelike
+tests
 cursestest
 
 .ccls

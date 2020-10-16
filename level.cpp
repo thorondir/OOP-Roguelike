@@ -37,7 +37,7 @@ Level::Level() {
 // free all entities (make sure to remove entities that need to be moved before doing this)
 Level::~Level() {
     for (Entity* entity : entities_) {
-        //delete entity;
+//        delete entity;
     }
 }
 
@@ -178,12 +178,13 @@ void Level::ApplyRooms() {
 
 // fill the rooms with entities, loot, and other fun stuff
 void Level::PopulateRooms() {
-    /*
     for (Room room : rooms_) {
         float area = room.GetArea();
         std::uniform_int_distribution<> num_enemies(0, (area*3)/25);
 
-        for (int i = 0; i < num_enemies(kRng); i++) {
+        int n = num_enemies(kRng);
+
+        for (int i = 0; i < n; i++) {
             std::uniform_int_distribution<> enemy_y(room.GetY1(), room.GetY2());
             std::uniform_int_distribution<> enemy_x(room.GetX1(), room.GetX2());
             entities_.push_back(new Enemy(
@@ -194,5 +195,5 @@ void Level::PopulateRooms() {
                         room.GetY2()-1, room.GetX2()-1,
                         's'));
         }
-    }*/
+    }
 }

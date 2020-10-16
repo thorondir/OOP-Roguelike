@@ -4,6 +4,10 @@ int main() {
     // get ncurses going
     InitialiseRenderer();
 
+    // create the main log
+    main_log = new Log("Main");
+    debug_log = new Log("Debug");
+
     // vector containing all levels
     std::vector<Level> levels;
 
@@ -15,10 +19,10 @@ int main() {
             (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
             (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2);
     // put the player into the first level
-    levels[0].entities_.push_back(new Enemy("Sawbot","it's sawbot",
+    /*levels[0].entities_.push_back(new Enemy("Sawbot","it's sawbot",
             (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
             (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2 + 1,
-            's'));
+            's'));*/
     levels[0].entities_.push_back(player);
 
     std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
@@ -31,16 +35,11 @@ int main() {
 
     player->UpdateFOVTransparent(transparentmap);
 
-    // creat the main log
-    main_log = new Log("Main");
-
     // game loop
     do {
-        //for (int i = 0; i < levels[0].entities_.size(); i++) {
-        //    levels[0].entities_[i]->Brain(levels[0].map_, levels[0].entities_);
-        //}
-        levels[0].entities_[0]->Brain(levels[0].map_, levels[0].entities_);
-        player->Brain(levels[0].map_, levels[0].entities_);
+        for (int i = 0; i < levels[0].entities_.size(); i++) {
+            levels[0].entities_[i]->Brain(levels[0].map_, levels[0].entities_);
+        }
 
         // render the level and the hud
         std::vector<std::vector<bool>> visible = player->GetFOV();
@@ -58,12 +57,14 @@ int main() {
 
         RenderLevel(&levels[0]);
         AddLogMessages(main_log);
+        AddLogMessages(debug_log);
         RenderHud(player);
 
     } while (!input());
     // end ncurses
     endwin();
     delete main_log;
+    delete debug_log;
 
     // everything went perfectly :)
     return 0;

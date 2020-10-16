@@ -11,14 +11,16 @@ Tile test_floor = Tile{false, true, 3, 4, ' ', false, false};
 std::array<std::array<Tile, kMapWidth>, kMapHeight> map;
 
 bool test_entity_move(Entity* entity) {
+    std::vector<Entity*> entities;
+    entities.push_back(entity);
     // test movement in all axes
-    entity->Move(0,1, map);
+    entity->MoveAttack(0,1, map, entities);
     if (entity->GetX() != 1) return false;
-    entity->Move(1,0, map);
+    entity->MoveAttack(1,0, map, entities);
     if (entity->GetY() != 1) return false;
-    entity->Move(0,-1, map);
+    entity->MoveAttack(0,-1, map, entities);
     if (entity->GetX() != 0) return false;
-    entity->Move(-1,0, map);
+    entity->MoveAttack(-1,0, map, entities);
     if (entity->GetY() != 0) return false;
     return true;
 }

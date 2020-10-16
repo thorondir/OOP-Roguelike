@@ -23,7 +23,7 @@ cursestest: cursestest.cpp
 	$(CC) cursestest.cpp -o $@ $(CFLAGS) $(LIBS)
 
 testcompile: tests.cpp $(filter-out roguelike.o, $(OBJ))
-	$(CC) -o tests $^ $(CLFAGS) $(LIBS)
+	$(CC) -o tests $^ $(CFLAGS) $(LIBS)
 
 tests: testcompile roguelike
 	./tests

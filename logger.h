@@ -15,13 +15,16 @@ class Log {
         void AddMessage(std::string);
         std::string GetMessage();
         int GetUnreads();
+
+        std::string GetName();
     private:
         std::string name_;
         int id_;
-        std::queue<std::string*> unseen_messages_;
+        std::queue<int> unseen_message_index_;
         std::vector<std::string> message_log_;
 };
 
 extern Log* main_log;
+extern Log* debug_log;
 
 #endif

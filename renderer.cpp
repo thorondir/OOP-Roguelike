@@ -197,6 +197,10 @@ void RenderEntities(std::vector<Entity*> entities, map_type map) {
 // add a message to the hud
 void AddLogMessages(Log* log) {
     while (log->GetUnreads() > 0) {
-        hud_messages[hud_message_number++ % 10] = log->GetMessage();
+        if (log->GetName() != "Main") {
+            hud_messages[hud_message_number++ % 10] = log->GetName().append(": ").append(log->GetMessage());
+        } else {
+            hud_messages[hud_message_number++ % 10] = log->GetMessage();
+        }
     }
 }
