@@ -15,7 +15,7 @@
 class Player : public Entity {
     public:
         Player(int y, int x) : Entity("Player", "This is you, the player", y, x, '@'),
-            FOV(kMapHeight, kMapWidth, 20, 0, 2*M_PI) {};
+            FOV(kMapHeight, kMapWidth, 10, 0, 2*M_PI) {};
         ~Player();
         std::vector<std::vector<bool>> GetFOV();
         void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>);

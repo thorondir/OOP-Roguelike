@@ -14,6 +14,8 @@ int main() {
     // initialise first level
     levels.push_back(Level());
 
+    debug_log->AddMessage(std::to_string(levels[0].entities_.size()));
+
     // create the player entity reference
     Player* player = new Player(
             (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,

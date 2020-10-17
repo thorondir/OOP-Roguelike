@@ -180,11 +180,10 @@ void Level::ApplyRooms() {
 void Level::PopulateRooms() {
     for (Room room : rooms_) {
         float area = room.GetArea();
-        std::uniform_int_distribution<> num_enemies(0, (area*3)/25);
+        //std::bernoulli_distribution chance_enemy((area)/50);
+        std::bernoulli_distribution chance_enemy(-(1/((area/100)+1))+1);
 
-        int n = num_enemies(kRng);
-
-        for (int i = 0; i < n; i++) {
+        while (chance_enemy(kRng)) {
             std::uniform_int_distribution<> enemy_y(room.GetY1(), room.GetY2());
             std::uniform_int_distribution<> enemy_x(room.GetX1(), room.GetX2());
             entities_.push_back(new Enemy(
