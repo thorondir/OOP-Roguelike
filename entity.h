@@ -7,7 +7,9 @@
 
 #include "logger.h"
 #include "constants.h"
+#include "rng.h"
 #include "environment.h"
+#include "spiralpath.h"
 
 class Entity {
     public:
@@ -25,6 +27,10 @@ class Entity {
         int GetHP();
         std::array<int, 4> GetStats(); // this is known to be int[4], which will not change
         short GetColorPair();
+        int GetFaction();
+        bool GetDoormat();
+        bool GetLiving();
+        bool GetDead();
         void SetPos(int, int);
 
         virtual void Brain(map_type, std::vector<Entity*>); // picks an action
@@ -35,12 +41,16 @@ class Entity {
         //void Damage(int);
         void Heal(int);
 
+        // vision stuff that doesn't exist
+        virtual std::vector<std::vector<bool>> GetFOV() {};
+        virtual void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>) {};
+
     protected:
         int x_,y_;
         int hp_;
         std::array<int, 4> stats_; // {maximum_hp, defense, maximum_attack_roll, attack_bonus}
         std::array<int, 4> equipment_slots_; // {heads, arms, torsos, feet}
-        bool friendly_; // whether the player attacks the entity
+        bool faction_; // integer id of entity's faction, 0 being the player
         bool doormat_; // whether the entity can be walked over
         bool living_;
         bool dead_;
@@ -51,4 +61,18 @@ class Entity {
         char avatar_;
         int id_;
 };
+
+class NonBlindEntity : public Entity {
+    public:
+        NonBlindEntity(std::string name, std::string description, int y, int x, char avatar, int radius) :
+            Entity(name, description, y, x, avatar),
+            FOV(kMapHeight, kMapWidth, radius, 0, 2*M_PI) {};
+        virtual ~NonBlindEntity();
+
+        std::vector<std::vector<bool>> GetFOV();
+        void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>);
+    private:
+        SpiralPathFOV FOV;
+};
+
 #endif

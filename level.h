@@ -21,6 +21,8 @@ class Level {
         std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
         std::vector<Room> GetRooms();
 
+        void FreeEntities();
+
     private:
         std::vector<Room> rooms_;
 

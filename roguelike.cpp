@@ -20,6 +20,10 @@ int main() {
     Player* player = new Player(
             (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
             (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2);
+    levels[0].entities_.push_back(new Entity("Test", "Test Entity",
+            (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
+            (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2 + 1, 'T'));
+
     // put the player into the first level
     /*levels[0].entities_.push_back(new Enemy("Sawbot","it's sawbot",
             (levels[0].GetRooms()[0].GetY1() + levels[0].GetRooms()[0].GetY2())/2,
@@ -38,35 +42,56 @@ int main() {
     player->UpdateFOVTransparent(transparentmap);
 
     // game loop
+    FrameInfo frame_info = {kNone, kMain};
     do {
-        for (int i = 0; i < levels[0].entities_.size(); i++) {
-            levels[0].entities_[i]->Brain(levels[0].map_, levels[0].entities_);
-        }
-
-        // render the level and the hud
-        std::vector<std::vector<bool>> visible = player->GetFOV();
-
-        for (int y = 0; y < kMapHeight; y++) {
-            for (int x = 0; x < kMapWidth; x++) {
-                if (visible[y][x]) {
-                    levels[0].map_[y][x].lit = true;
-                    levels[0].map_[y][x].seen = true;
-                } else {
-                    levels[0].map_[y][x].lit = false;
+        switch (frame_info.input_context) {
+            case kMain: {
+                if (frame_info.input_type == kAction) {
+                    for (int i = 0; i < levels[0].entities_.size(); i++) {
+                        levels[0].entities_[i]->Brain(levels[0].map_, levels[0].entities_);
+                        levels[0].entities_[i]->UpdateFOVTransparent(transparentmap);
+                    }
                 }
+
+                // render the level and the hud
+                std::vector<std::vector<bool>> visible = player->GetFOV();
+
+                for (int y = 0; y < kMapHeight; y++) {
+                    for (int x = 0; x < kMapWidth; x++) {
+                        if (visible[y][x]) {
+                            levels[0].map_[y][x].lit = true;
+                            levels[0].map_[y][x].seen = true;
+                        } else {
+                            levels[0].map_[y][x].lit = false;
+                        }
+                    }
+                }
+
+                RenderLevel(&levels[0]);
+                AddLogMessages(main_log);
+                AddLogMessages(debug_log);
+                RenderHud(player);
+
+                break;
+            }
+            case kMenu: {
+                RenderMenu(player);
+                break;
             }
         }
 
-        RenderLevel(&levels[0]);
-        AddLogMessages(main_log);
-        AddLogMessages(debug_log);
-        RenderHud(player);
+        frame_info = input(frame_info);
 
-    } while (!input());
+    } while (frame_info.input_context != kAbort);
     // end ncurses
     endwin();
     delete main_log;
     delete debug_log;
+    
+    // free all entities
+    for (Level level : levels) {
+        level.FreeEntities();
+    }
 
     // everything went perfectly :)
     return 0;

@@ -26,7 +26,7 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
     equipment_slots_[2] = 1; // 1 torso
     equipment_slots_[3] = 2; // 2 feet
 
-    friendly_ = true;    
+    faction_ = 0;
     // defines whether the player will attack when moving into this entity
     // the player shouldn't attack the default entity (monsters are a special case)
 
@@ -37,7 +37,7 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
     living_ = false; // monsters attack living things, but shouldn't attack every entity
     dead_ = false; // entities start alive
 
-    color_pair_ = 0;
+    color_pair_ = 3;
 }
 
 Entity::~Entity() {
@@ -82,6 +82,22 @@ std::array<int, 4> Entity::GetStats() {
     return stats_;
 }
 
+int Entity::GetFaction() {
+    return faction_;
+}
+
+bool Entity::GetDoormat() {
+    return doormat_;
+}
+
+bool Entity::GetLiving() {
+    return living_;
+}
+
+bool Entity::GetDead() {
+    return dead_;
+}
+
 // return the entity's colour pair
 short Entity::GetColorPair() {
     return color_pair_;
@@ -98,8 +114,20 @@ void Entity::MoveAttack(int dy, int dx, map_type map, std::vector<Entity*> resid
 
     for (Entity* target : residents) {
         if (target->GetY() == new_y && target->GetX() == new_x) {
-            main_log->AddMessage(std::string("").append(name_).append(std::string(" attacks ")).append(target->GetName()));
-            return;
+            if (target->GetFaction() != GetFaction() && !target->GetDead()) {
+                // damage roll can be up to maximum roll
+                std::uniform_int_distribution<> damage_range(0, stats_[2]);
+
+                int damage = damage_range(kRng) + stats_[3];
+
+                target->TakeDamage(damage);
+                main_log->AddMessage(std::string("").append(name_)
+                        .append(std::string(" attacks ")).append(target->GetName())
+                        .append(" for ").append(std::to_string(damage)).append(" damage!"));
+                return;
+            } else if (!target->GetDoormat()){
+                return;
+            }
         }
     }
 
@@ -136,4 +164,21 @@ void Entity::Damage() {
 // heal bonus stat or something like that
 void Entity::Heal(int heal) {
     hp_ += heal;
+}
+
+// non-blind entity
+
+std::vector<std::vector<bool>> NonBlindEntity::GetFOV() {
+    return FOV.SpiralPath(y_, x_);
+}
+
+void NonBlindEntity::UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap) {
+    for (int y = 0; y < kMapHeight; y++) {
+        for (int x = 0; x < kMapWidth; x++) {
+            FOV.transparentmap_[y][x] = transparentmap[y][x];
+        }
+    }
+}
+
+NonBlindEntity::~NonBlindEntity() {
 }

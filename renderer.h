@@ -17,6 +17,7 @@ extern void InitialiseRenderer();
 
 extern void RenderHud(Entity*);
 extern void RenderLevel(Level*);
+extern void RenderMenu(Entity*);
 
 extern void AddLogMessages(Log*);
 

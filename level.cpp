@@ -33,11 +33,14 @@ Level::Level() {
     PopulateRooms();
 }
 
-// level destructor
-// free all entities (make sure to remove entities that need to be moved before doing this)
+// level destructor - this might be called when the vector of levels is resized, so be careful...
 Level::~Level() {
+}
+
+// free all entities (make sure to remove entities that need to be moved before doing this)
+void Level::FreeEntities() {
     for (Entity* entity : entities_) {
-//        delete entity;
+        delete entity;
     }
 }
 
@@ -189,9 +192,8 @@ void Level::PopulateRooms() {
             entities_.push_back(new Enemy(
                         "Sawbot",
                         "A cheap, unadorned steel cube with a spinning vibroblade that seems to rip even the air around it.",
-                        //room.GetY1() + enemy_y(kRng),
-                        //room.GetX1() + enemy_x(kRng),
-                        room.GetY2()-1, room.GetX2()-1,
+                        enemy_y(kRng),
+                        enemy_x(kRng),
                         's'));
         }
     }

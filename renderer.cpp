@@ -2,6 +2,7 @@
 
 // ncurses variables
 WINDOW* ncurses_hud_window;
+WINDOW* ncurses_menu_window;
 
 // screen variables
 int screen_width;
@@ -54,6 +55,9 @@ void InitialiseRenderer() {
     hud_width = screen_width-kMapWidth;
     ncurses_hud_window = newwin(screen_height, hud_width, 0, kMapWidth);
 
+    // create menu window
+    ncurses_menu_window = newwin(screen_height, screen_width, 0, 0);
+
     // refresh all windows before the first frame
     wrefresh(stdscr);
     wrefresh(ncurses_hud_window);
@@ -73,10 +77,11 @@ void InitialiseRenderer() {
 
     // initialise colour pairs
     init_pair(0, COLOR_BLACK, COLOR_BLACK);
-    init_pair(1, COLOR_BLUE, COLOR_BLUE);
+    init_pair(1, COLOR_BLACK, COLOR_BLUE);
     init_pair(2, 8, 8);
-    init_pair(3, COLOR_CYAN, COLOR_CYAN);
+    init_pair(3, COLOR_BLACK, COLOR_CYAN);
     init_pair(4, 10, 10); // dark cyan
+    init_pair(5, COLOR_BLACK, COLOR_RED); // blood
 
     // define background
     bkgd(' ' | COLOR_PAIR(0));
@@ -124,6 +129,15 @@ void RenderHud(Entity* player) {
 
     // finally, refresh the hud window
     wrefresh(ncurses_hud_window);
+}
+
+// render the menu (only inventory at the moment)
+void RenderMenu(Entity* player) {
+    wclear(ncurses_menu_window);
+    box(ncurses_menu_window, 0, 0);
+    mvwprintw(ncurses_menu_window, 1, 1, "Inventory of %s", player->GetName().c_str());
+
+    wrefresh(ncurses_menu_window);
 }
 
 // print messages
