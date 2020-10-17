@@ -11,7 +11,7 @@
 class Enemy : public Entity {
     public:
         Enemy(std::string name, std::string description, int y, int x, char avatar) :
-            Entity(name, description, y, x, avatar) {};
+            Entity(name, description, y, x, avatar), target_(nullptr) {};
         ~Enemy();
         void Brain(map_type, std::vector<Entity*>);
     private:
