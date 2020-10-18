@@ -6,23 +6,28 @@
 
 #include "entity.h"
 
+class Entity; // idk how to resolve  this lol
+
 class Item {
     public:
         // item constructor
         Item(std::string name, float weight, float value) :
             name_(name), weight_(weight), value_(value) {};
 
-        std::string GetName();
+        std::string GetName() const;
         float GetWeight();
         float GetValue();
 
         void Drop(int, int);
+
     private:
         std::string name_;
 
         float weight_;
         float value_;
 };
+
+bool operator<(Item const&, Item const&);
 
 class EquippableItem : public Item {
     public:

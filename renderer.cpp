@@ -137,6 +137,14 @@ void RenderMenu(Entity* player) {
     box(ncurses_menu_window, 0, 0);
     mvwprintw(ncurses_menu_window, 1, 1, "Inventory of %s", player->GetName().c_str());
 
+    std::map<Item, int> inventory = player->GetInventory();
+
+    int i = 0;
+    for (std::pair<Item, int> item : inventory) {
+        mvwprintw(ncurses_menu_window, 2+i, 1, "n) %dx %s", item.second, item.first.GetName().c_str());
+        i++;
+    }
+
     wrefresh(ncurses_menu_window);
 }
 

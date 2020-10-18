@@ -1,7 +1,7 @@
 #include "item.h"
 
 // return the item's name
-std::string Item::GetName() {
+std::string Item::GetName() const {
     return name_;
 }
 
@@ -47,4 +47,8 @@ void EquippableItem::SetUser(Entity* user) {
 // heal this item's user
 void HealingItem::Consume(Entity* user) {
     user->Heal(power_);
+}
+
+bool operator<(Item const& item_1, Item const& item_2) {
+    return item_1.GetName().compare(item_2.GetName()) < 0;
 }

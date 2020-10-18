@@ -38,6 +38,9 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
     dead_ = false; // entities start alive
 
     color_pair_ = 3;
+
+    // inventory
+    max_weight_ = 40.0;
 }
 
 Entity::~Entity() {
@@ -166,8 +169,55 @@ void Entity::Heal(int heal) {
     hp_ += heal;
 }
 
-// non-blind entity
+// inventory stuff
 
+//bool Entity::InventoryComp(Item a, Item b) {
+//    return a.GetName().compare(b.GetName()) < 0;
+//}
+
+// get the total weight held by the entity
+std::map<Item, int> Entity::GetInventory() const {
+    return inventory_;
+}
+
+float Entity::GetInvenWeight() {
+    float weight = 0;
+    for (std::pair<Item, int> item : inventory_) {
+        weight += item.first.GetWeight()*item.second;
+    }
+    return weight;
+}
+
+void Entity::GetItem(Item item){
+    inventory_[item]++;
+}
+
+void Entity::DropItem() {
+}
+
+void Entity::EquipItem(){
+}
+
+void Entity::DequipItem(){
+}
+
+void Entity::UseItem(){
+}
+
+bool Entity::ConsumeItem(ComestibleItem* item){
+    if (inventory_[*item] > 0) {
+        item->Consume(this);
+        if (inventory_[*item] > 1) {
+            inventory_[*item]--;
+        } else {
+            inventory_.erase(*item);
+        }
+        return true;
+    } else return false;
+}
+
+
+// non-blind entity
 std::vector<std::vector<bool>> NonBlindEntity::GetFOV() {
     return FOV.SpiralPath(y_, x_);
 }

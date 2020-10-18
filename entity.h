@@ -4,12 +4,17 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <map>
 
 #include "logger.h"
 #include "constants.h"
 #include "rng.h"
 #include "environment.h"
 #include "spiralpath.h"
+#include "item.h"
+
+class Item; // see corresponding comment in item.h
+class ComestibleItem;
 
 class Entity {
     public:
@@ -41,6 +46,15 @@ class Entity {
         //void Damage(int);
         void Heal(int);
 
+        // inventory stuff
+        std::map<Item, int> GetInventory() const;
+        void GetItem(Item);
+        void DropItem();
+        void EquipItem();
+        void DequipItem();
+        void UseItem();
+        bool ConsumeItem(ComestibleItem*);
+
         // vision stuff that doesn't exist
         virtual std::vector<std::vector<bool>> GetFOV() {};
         virtual void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>) {};
@@ -55,6 +69,11 @@ class Entity {
         bool living_;
         bool dead_;
         short color_pair_;
+
+        float max_weight_;
+        std::map<Item, int> inventory_;
+        //bool InventoryComp(Item, Item);
+        float GetInvenWeight();
     private:
         std::string name_;
         std::string description_;
