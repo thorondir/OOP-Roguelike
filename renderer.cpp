@@ -137,7 +137,7 @@ void RenderMenu(Entity* player) {
     box(ncurses_menu_window, 0, 0);
     mvwprintw(ncurses_menu_window, 1, 1, "Inventory of %s", player->GetName().c_str());
 
-    std::map<Item, int> inventory = player->GetInventory();
+    std::map<Item, int> inventory = *player->GetInventory();
 
     int i = 0;
     for (std::pair<Item, int> item : inventory) {
@@ -206,13 +206,35 @@ void RenderEnvironment(map_type map) {
 
 // loop through entities and render those on top of the map
 void RenderEntities(std::vector<Entity*> entities, map_type map) {
+    //vectors storing layers of entities to be rendered
+    std::vector<Entity*> to_render_first;
+    std::vector<Entity*> to_render_second;
+
     for (Entity* entity : entities) {
+        // only render entities that can be seen
         if (map[entity->GetY()][entity->GetX()].lit) {
-            mvaddch(
-                    entity->GetY(),
-                    entity->GetX(),
-                    entity->GetAvatar() | COLOR_PAIR(entity->GetColorPair()));
+            // if the entity can be walked over (and hence drawn over), add it to the first layer
+            if (entity->GetDoormat()) to_render_first.push_back(entity);
+            // otherwise place the entity in the second layer
+            else to_render_second.push_back(entity);
         }
+    }
+
+    // loop through layers and render entities
+    for (Entity* entity : to_render_first) {
+        mvaddch(
+                entity->GetY(),
+                entity->GetX(),
+                entity->GetAvatar() | COLOR_PAIR(entity->GetColorPair()));
+
+    }
+
+    for (Entity* entity : to_render_second) {
+        mvaddch(
+                entity->GetY(),
+                entity->GetX(),
+                entity->GetAvatar() | COLOR_PAIR(entity->GetColorPair()));
+
     }
 }
 

@@ -3,12 +3,15 @@
 Enemy::~Enemy() {
 }
 
-void Enemy::Brain(map_type map, std::vector<Entity*> residents) {
+void Enemy::Brain(map_type map, std::vector<Entity*>* residents) {
     if (!dead_) {
         if (hp_ <= 0) {
             dead_ = true;
             doormat_ = true;
-            color_pair_ = 5;
+            color_pair_ = 5; 
+            for (std::pair<Item, int> item : inventory_) {
+                DropItem(item.first, item.second, residents);
+            }
             return;
         }
         // get FOV
@@ -16,7 +19,7 @@ void Enemy::Brain(map_type map, std::vector<Entity*> residents) {
 
         // try to find a target
         if (target_ == nullptr) {
-            for (Entity* entity : residents) {
+            for (Entity* entity : *residents) {
                 if (entity->GetFaction() != faction_ && entity->GetLiving() &&
                         visible[entity->GetY()][entity->GetX()]) {
                     target_ = entity;
@@ -39,7 +42,7 @@ void Enemy::Brain(map_type map, std::vector<Entity*> residents) {
                 dx = -1;
             } else dx = 0;
 
-            MoveAttack(dy, dx, map, residents);
+            MoveAttack(dy, dx, map, *residents);
         }
     }
 }

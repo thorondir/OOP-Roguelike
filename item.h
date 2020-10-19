@@ -6,7 +6,7 @@
 
 #include "entity.h"
 
-class Entity; // idk how to resolve  this lol
+class Entity; // idk how to resolve this lol
 
 class Item {
     public:

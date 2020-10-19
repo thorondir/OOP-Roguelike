@@ -38,7 +38,7 @@ class Entity {
         bool GetDead();
         void SetPos(int, int);
 
-        virtual void Brain(map_type, std::vector<Entity*>); // picks an action
+        virtual void Brain(map_type, std::vector<Entity*>*); // picks an action
         void Move(int, int);
         void MoveAttack(int, int, map_type, std::vector<Entity*>);
 
@@ -47,17 +47,14 @@ class Entity {
         void Heal(int);
 
         // inventory stuff
-        std::map<Item, int> GetInventory() const;
-        void GetItem(Item);
-        void DropItem();
+        std::map<Item, int>* GetInventory();
+        void PickupItem(Item);
+        void TakeItems(Entity*);
+        bool DropItem(Item, int, std::vector<Entity*>*);
         void EquipItem();
         void DequipItem();
         void UseItem();
         bool ConsumeItem(ComestibleItem*);
-
-        // vision stuff that doesn't exist
-        virtual std::vector<std::vector<bool>> GetFOV() {};
-        virtual void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>) {};
 
     protected:
         int x_,y_;
@@ -92,6 +89,18 @@ class NonBlindEntity : public Entity {
         void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>);
     private:
         SpiralPathFOV FOV;
+};
+
+class ItemEntity : public Entity {
+    public:
+        ItemEntity(std::string name, std::string description, int y, int x, char avatar, Item* item, int count, std::vector<Entity*>::iterator pos) :
+            Entity(name, description, y, x, avatar),
+            position_(pos) {
+            inventory_[*item] = count;
+        }
+        void Brain(map_type, std::vector<Entity*>*);
+    private:
+        std::vector<Entity*>::iterator position_;
 };
 
 #endif

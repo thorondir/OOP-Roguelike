@@ -31,7 +31,7 @@ int main() {
             's'));*/
     levels[0].entities_.push_back(player);
     HealingItem jeff = HealingItem("Jeff", 69.0, 42.0, 2);
-    player->GetItem(HealingItem("Jeff", 69.0, 42.0, 2));
+    player->PickupItem(jeff);
 
     std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
 
@@ -49,9 +49,14 @@ int main() {
         switch (frame_info.input_context) {
             case kMain: {
                 if (frame_info.input_type == kAction) {
-                    for (int i = 0; i < levels[0].entities_.size(); i++) {
-                        levels[0].entities_[i]->Brain(levels[0].map_, levels[0].entities_);
-                        levels[0].entities_[i]->UpdateFOVTransparent(transparentmap);
+                    for (Entity* entity : levels[0].entities_) {
+                        entity->Brain(levels[0].map_, &levels[0].entities_);
+                    }
+                    // loop again just in case the entity got deleted    
+                    for (Entity* entity : levels[0].entities_) {
+                        // only update transparentmap if it's a NonBlindEntity
+                        NonBlindEntity* non_blind_entity = dynamic_cast<NonBlindEntity*>(entity);
+                        if (non_blind_entity) non_blind_entity->UpdateFOVTransparent(transparentmap);
                     }
                 }
 

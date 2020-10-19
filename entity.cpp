@@ -106,7 +106,7 @@ short Entity::GetColorPair() {
     return color_pair_;
 }
 
-void Entity::Brain(map_type map, std::vector<Entity*> entities) {
+void Entity::Brain(map_type map, std::vector<Entity*>* entities) {
     return;
 }
 
@@ -176,8 +176,8 @@ void Entity::Heal(int heal) {
 //}
 
 // get the total weight held by the entity
-std::map<Item, int> Entity::GetInventory() const {
-    return inventory_;
+std::map<Item, int>* Entity::GetInventory() {
+    return &inventory_;
 }
 
 float Entity::GetInvenWeight() {
@@ -188,11 +188,58 @@ float Entity::GetInvenWeight() {
     return weight;
 }
 
-void Entity::GetItem(Item item){
+void Entity::PickupItem(Item item){
     inventory_[item]++;
 }
 
-void Entity::DropItem() {
+void Entity::TakeItems(Entity* other_entity) {
+    std::map<Item, int>* other_inventory = other_entity->GetInventory();
+    // first get items
+    if (other_inventory->size() > 0 && other_entity != this) {
+        for (std::pair<Item, int> item : *other_inventory) {
+            if (item.second) {
+                inventory_[item.first] += item.second;
+                other_inventory->at(item.first) = 0;
+                main_log->AddMessage(
+                        std::string()
+                        .append(GetName())
+                        .append(" picks up ")
+                        .append(std::to_string(item.second))
+                        .append("x ")
+                        .append(item.first.GetName()));
+            }
+        }
+         
+        // then remove them all from the target
+         /*
+        for (std::pair<Item, int> item : *other_inventory) {
+            other_inventory->erase(item.first);
+        }*/
+    }
+}
+
+bool Entity::DropItem(Item item, int count, std::vector<Entity*>* entities) {
+    if (inventory_[item] >= count) {
+        inventory_[item]--;
+        std::string description;
+
+        if (count > 1) {
+            description = std::to_string(count).append("x ").append(item.GetName());
+        } else {
+            description = std::string("A ").append(item.GetName());
+        }
+
+        entities->push_back(new ItemEntity(
+                item.GetName(),
+                description,
+                GetY(),
+                GetX(),
+                item.GetName()[0],
+                &item,
+                count,
+                entities->end()));
+    }
+    return false;
 }
 
 void Entity::EquipItem(){
@@ -213,7 +260,10 @@ bool Entity::ConsumeItem(ComestibleItem* item){
             inventory_.erase(*item);
         }
         return true;
-    } else return false;
+    } else {
+        inventory_.erase(*item);
+        return false;
+    }
 }
 
 
@@ -232,3 +282,15 @@ void NonBlindEntity::UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>
 
 NonBlindEntity::~NonBlindEntity() {
 }
+
+// Item entity
+void ItemEntity::Brain(map_type map, std::vector<Entity*>* entities) {
+    int total_count = 0;
+    for (std::pair <Item, int> item : inventory_) {
+        total_count += inventory_[item.first];
+    }
+    if (total_count <= 0) {
+        entities->erase(position_);
+        delete this;
+    }
+};
