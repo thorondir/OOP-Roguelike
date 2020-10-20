@@ -30,8 +30,7 @@ int main() {
             (levels[0].GetRooms()[0].GetX1() + levels[0].GetRooms()[0].GetX2())/2 + 1,
             's'));*/
     levels[0].entities_.push_back(player);
-    HealingItem jeff = HealingItem("Jeff", 69.0, 42.0, 2);
-    player->PickupItem(jeff);
+    player->PickupItem(new HealingItem("Jess", 69.0, 42.0, 10));
 
     std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
 
@@ -82,7 +81,7 @@ int main() {
                 break;
             }
             case kMenu: {
-                if (GetLastCh() == 'n') player->ConsumeItem(&jeff);
+                ManageMenu(player);
                 RenderMenu(player);
                 break;
             }

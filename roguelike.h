@@ -7,9 +7,10 @@
 
 #include "logger.h"
 #include "renderer.h"
+#include "input.h"
+#include "menu.h"
 #include "level.h"
 #include "spiralpath.h"
-#include "input.h"
 #include "player.h"
 #include "enemy.h"
 

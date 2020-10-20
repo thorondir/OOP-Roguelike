@@ -11,7 +11,8 @@ int screen_height;
 // hud variables
 int hud_width;
 int hud_message_number = 0;
-std::string hud_messages[10];
+const int kMaxHudMessages = 20;
+std::string hud_messages[kMaxHudMessages];
 
 // predefine local functions for rendering level
 void RenderEntities(std::vector<Entity*>, map_type);
@@ -137,12 +138,16 @@ void RenderMenu(Entity* player) {
     box(ncurses_menu_window, 0, 0);
     mvwprintw(ncurses_menu_window, 1, 1, "Inventory of %s", player->GetName().c_str());
 
-    std::map<Item, int> inventory = *player->GetInventory();
+    inventory_type inventory = *player->GetInventory();
 
     int i = 0;
-    for (std::pair<Item, int> item : inventory) {
-        mvwprintw(ncurses_menu_window, 2+i, 1, "n) %dx %s", item.second, item.first.GetName().c_str());
-        i++;
+    char option_char = 'a';
+    for (auto item : inventory) {
+        // this is kinda janky because once we get past Z input is impossible but eh, we'll see
+        // also 'q' needs to be banned
+        if (option_char == 'q') option_char++;
+        if (item.second.second > 0)
+            mvwprintw(ncurses_menu_window, 2+i++, 1, "%c) %dx %s", option_char++, item.second.second, item.first.c_str());
     }
 
     wrefresh(ncurses_menu_window);
@@ -152,15 +157,15 @@ void RenderMenu(Entity* player) {
 void PrintHudMessages() {
     // keep track of the line currently being printed on
     int current_term_line = screen_height-1;
-    for (int i = hud_message_number - 1; i > hud_message_number - 10; i--) {
+    for (int i = hud_message_number - 1; i > hud_message_number - kMaxHudMessages; i--) {
         // stop printing if we've run out of messages, or the messages would print too
         // (thus preventing printing over other hud information)
-        if (i < 0 || current_term_line <= 10) {
+        if (i < 0 || current_term_line <= kMaxHudMessages) {
             break;
         }
 
         // get the number  of lines this message will take up
-        int num_lines = ceil(hud_messages[i%10].length() / (float) (hud_width - 2));
+        int num_lines = ceil(hud_messages[i%kMaxHudMessages].length() / (float) (hud_width - 2));
 
         // print each line of the message, with a maximum number of characters equal to the
         // width of the hud - 2 (since there are two border characters)
@@ -170,7 +175,7 @@ void PrintHudMessages() {
                     current_term_line - num_lines + l,
                     1,
                     "%s",
-                    hud_messages[i%10]
+                    hud_messages[i%kMaxHudMessages]
                         .substr((hud_width - 2) * l,(hud_width - 2) * (l + 1)).c_str());
         }
 
@@ -242,9 +247,9 @@ void RenderEntities(std::vector<Entity*> entities, map_type map) {
 void AddLogMessages(Log* log) {
     while (log->GetUnreads() > 0) {
         if (log->GetName() != "Main") {
-            hud_messages[hud_message_number++ % 10] = log->GetName().append(": ").append(log->GetMessage());
+            hud_messages[hud_message_number++ % kMaxHudMessages] = log->GetName().append(": ").append(log->GetMessage());
         } else {
-            hud_messages[hud_message_number++ % 10] = log->GetMessage();
+            hud_messages[hud_message_number++ % kMaxHudMessages] = log->GetMessage();
         }
     }
 }

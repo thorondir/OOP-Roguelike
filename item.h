@@ -18,7 +18,7 @@ class Item {
         float GetWeight();
         float GetValue();
 
-        void Drop(int, int);
+        virtual void GetDescription(); // this is just here so this function is abstract
 
     private:
         std::string name_;

@@ -9,8 +9,8 @@ void Enemy::Brain(map_type map, std::vector<Entity*>* residents) {
             dead_ = true;
             doormat_ = true;
             color_pair_ = 5; 
-            for (std::pair<Item, int> item : inventory_) {
-                DropItem(item.first, item.second, residents);
+            for (auto item : inventory_) {
+                    DropItem(item.second.first, residents);
             }
             return;
         }

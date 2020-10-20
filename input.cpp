@@ -16,8 +16,8 @@ FrameInfo input(FrameInfo last_frame) {
                 return {kNone, kAbort};
         }
     }
-    if (last_ch >= '0' && last_ch <= '9' ||
-            last_ch >= KEY_DOWN && last_ch <= KEY_RIGHT ||
+    if ((last_ch >= '0' && last_ch <= '9') ||
+            (last_ch >= KEY_DOWN && last_ch <= KEY_RIGHT) ||
             last_ch == 'g')
         return {kAction, last_frame.input_context};
     if (last_ch == 'i') return {kMenuOpen, kMenu};

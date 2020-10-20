@@ -15,9 +15,7 @@ float Item::GetValue() {
     return value_;
 }
 
-// drop the item, and spawn an item entity with a reference to this item
-void Item::Drop(int y, int x) {
-    // gotta figure this out lol
+void Item::GetDescription() {
 }
 
 // methods for EquippableItem

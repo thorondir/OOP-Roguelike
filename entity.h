@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "logger.h"
 #include "constants.h"
@@ -15,6 +16,8 @@
 
 class Item; // see corresponding comment in item.h
 class ComestibleItem;
+
+typedef std::map<std::string, std::pair<Item*, int>> inventory_type;
 
 class Entity {
     public:
@@ -47,10 +50,11 @@ class Entity {
         void Heal(int);
 
         // inventory stuff
-        std::map<Item, int>* GetInventory();
-        void PickupItem(Item);
+        std::map<std::string, std::pair<Item*, int>>* GetInventory();
+        std::vector<Item*>* GetItemTypes();
+        void PickupItem(Item*);
         void TakeItems(Entity*);
-        bool DropItem(Item, int, std::vector<Entity*>*);
+        bool DropItem(Item*, std::vector<Entity*>*);
         void EquipItem();
         void DequipItem();
         void UseItem();
@@ -68,7 +72,8 @@ class Entity {
         short color_pair_;
 
         float max_weight_;
-        std::map<Item, int> inventory_;
+        std::map<std::string, std::pair<Item*, int>> inventory_;
+        std::vector<Item*> items_;
         //bool InventoryComp(Item, Item);
         float GetInvenWeight();
     private:
@@ -96,7 +101,7 @@ class ItemEntity : public Entity {
         ItemEntity(std::string name, std::string description, int y, int x, char avatar, Item* item, int count, std::vector<Entity*>::iterator pos) :
             Entity(name, description, y, x, avatar),
             position_(pos) {
-            inventory_[*item] = count;
+            PickupItem(item);
         }
         void Brain(map_type, std::vector<Entity*>*);
     private:
