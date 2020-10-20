@@ -138,16 +138,19 @@ void RenderMenu(Entity* player) {
     box(ncurses_menu_window, 0, 0);
     mvwprintw(ncurses_menu_window, 1, 1, "Inventory of %s", player->GetName().c_str());
 
-    inventory_type inventory = *player->GetInventory();
+    Inventory* inventory = player->GetInventory();
 
+    
     int i = 0;
     char option_char = 'a';
-    for (auto item : inventory) {
+    for (auto item : inventory->GetItems()) {
         // this is kinda janky because once we get past Z input is impossible but eh, we'll see
         // also 'q' needs to be banned
+        
         if (option_char == 'q') option_char++;
-        if (item.second.second > 0)
-            mvwprintw(ncurses_menu_window, 2+i++, 1, "%c) %dx %s", option_char++, item.second.second, item.first.c_str());
+
+        if (item->count_ > 0)
+            mvwprintw(ncurses_menu_window, 2+i++, 1, "%c) %dx %s", option_char++, item->count_, item->GetName().c_str());
     }
 
     wrefresh(ncurses_menu_window);

@@ -9,6 +9,7 @@
 
 #include "logger.h"
 #include "entity.h"
+#include "inventory.h"
 #include "level.h"
 #include "environment.h"
 #include "constants.h"

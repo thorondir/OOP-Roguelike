@@ -44,9 +44,6 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
 }
 
 Entity::~Entity() {
-    for (Item* item_type : items_) {
-        delete item_type;
-    }
 }
 
 // return the x coordinate of the entity
@@ -179,65 +176,30 @@ void Entity::Heal(int heal) {
 //}
 
 // get the total weight held by the entity
-inventory_type* Entity::GetInventory() {
+Inventory* Entity::GetInventory() {
     return &inventory_;
-}
-
-std::vector<Item*>* Entity::GetItemTypes() {
-    return &items_;
 }
 
 float Entity::GetInvenWeight() {
     float weight = 0;
-    for (auto item : inventory_) {
-        weight += item.second.first->GetWeight()*item.second.second;
+    for (auto item : inventory_.GetItems()) {
+        weight += item->GetWeight()*item->count_;
     }
     return weight;
 }
 
 void Entity::PickupItem(Item* item){
-    if (inventory_.find(item->GetName()) == inventory_.end()) {
-        // initialise this type of item in item memory
-        items_.push_back(item);
-        inventory_[item->GetName()] = std::make_pair(item, 0);
-    }
-    inventory_[item->GetName()].second++;
+    inventory_.AddItem(item);
 }
 
 void Entity::TakeItems(Entity* other_entity) {
-    inventory_type* other_inventory = other_entity->GetInventory();
-    std::vector<Item*>* other_items = other_entity->GetItemTypes();
+    Inventory* other_inventory = other_entity->GetInventory();
     // first get items
-    if (other_inventory->size() > 0 && other_entity != this) {
-        for (auto item : *other_inventory) {
-            if (item.second.second > 0) {
-                if (inventory_.find(item.first) == inventory_.end()) {
-                    // steal this item type from the other item
-                    items_.push_back(item.second.first);
-                } else {
-                    // otherwise delete the other listing, provided the pointer isn't the same as this one
-                    // this is to prevent memory leaks (unfreed memory), but could result in some REALLY wacky stuff
-
-                    // PROCEED WITH GREAT CAUTION!!
-                    if (std::find(items_.begin(), items_.end(), item.second.first) == items_.end()) {
-                        delete item.second.first;
-                    }
-                }
-                // destroy the other item listings so the data won't be freed
-                other_items->clear();
-
-                inventory_[item.first].second += item.second.second;
-                other_inventory->at(item.first).second = 0;
-                main_log->AddMessage(
-                        std::string()
-                        .append(GetName())
-                        .append(" picks up ")
-                        .append(std::to_string(item.second.second))
-                        .append("x ")
-                        .append(item.first));
-            }
+    if (other_inventory->GetItems().size() > 0 && other_entity != this) {
+        for (auto item : other_inventory->GetItems()) {
+            Inventory::TryMove(other_inventory, &this->inventory_, item);
         }
-         
+
         // then remove them all from the target
          /*
         for (std::pair<Item, int> item : *other_inventory) {
@@ -247,8 +209,9 @@ void Entity::TakeItems(Entity* other_entity) {
 }
 
 bool Entity::DropItem(Item* item, std::vector<Entity*>* entities) {
-    if (inventory_.find(item->GetName()) != inventory_.end()) {
-        int count = inventory_[item->GetName()].second;
+    auto item_it = inventory_.FindItem(item);
+    if (item_it != inventory_.GetItems().end()) {
+        int count = item->count_;
         if (count > 0) {
             std::string description;
 
@@ -258,19 +221,22 @@ bool Entity::DropItem(Item* item, std::vector<Entity*>* entities) {
                 description = std::string("A ").append(item->GetName());
             }
 
-            entities->push_back(new ItemEntity(
+
+            ItemEntity* new_entity = new ItemEntity(
                     item->GetName(),
                     description,
                     GetY(),
                     GetX(),
-                    item->GetName()[0],
-                    item,
-                    count,
-                    entities->end()));
+                    item->GetName()[0]);
+            entities->push_back(new_entity);
+
+            new_entity->position_ = std::find(entities->begin(), entities->end(), new_entity);
+
+            Inventory::TryMove(&inventory_, (*new_entity->position_)->GetInventory(), item);
 
             // this breaks (as in segfaults) loops
             //inventory_.erase(item->GetName());
-            std::remove(items_.begin(), items_.end(), item);
+            return true;
         }
     }
     return false;
@@ -286,9 +252,9 @@ void Entity::UseItem(){
 }
 
 bool Entity::ConsumeItem(ComestibleItem* item){
-    if (inventory_[item->GetName()].second > 0) {
+    if (item->count_ > 0) {
         item->Consume(this);
-        inventory_[item->GetName()].second--;
+        item->count_--;
         return true;
     } else {
         return false;
@@ -315,8 +281,8 @@ NonBlindEntity::~NonBlindEntity() {
 // Item entity
 void ItemEntity::Brain(map_type map, std::vector<Entity*>* entities) {
     int total_count = 0;
-    for (auto item : inventory_) {
-        total_count += inventory_[item.first].second;
+    for (auto item : inventory_.GetItems()) {
+        total_count += item->count_;
     }
     if (total_count <= 0) {
         entities->erase(position_);

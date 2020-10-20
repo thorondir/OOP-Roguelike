@@ -4,7 +4,7 @@
 #include <string>
 #include <array>
 
-#include "entity.h"
+//#include "entity.h"
 
 class Entity; // idk how to resolve this lol
 
@@ -12,13 +12,15 @@ class Item {
     public:
         // item constructor
         Item(std::string name, float weight, float value) :
-            name_(name), weight_(weight), value_(value) {};
+            name_(name), weight_(weight), value_(value), count_(1) {};
 
         std::string GetName() const;
         float GetWeight();
         float GetValue();
 
-        virtual void GetDescription(); // this is just here so this function is abstract
+        virtual Item* Clone();
+
+        int count_;
 
     private:
         std::string name_;
@@ -64,6 +66,7 @@ class HealingItem : public ComestibleItem {
         HealingItem(std::string name, float weight,  float value, int power) :
             ComestibleItem(name, weight, value), power_(power) {};
         void Consume(Entity*);
+        HealingItem* Clone();
     private:
         int power_;
 };

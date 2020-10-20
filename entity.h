@@ -13,11 +13,11 @@
 #include "environment.h"
 #include "spiralpath.h"
 #include "item.h"
+#include "inventory.h"
 
+class Inventory;
 class Item; // see corresponding comment in item.h
 class ComestibleItem;
-
-typedef std::map<std::string, std::pair<Item*, int>> inventory_type;
 
 class Entity {
     public:
@@ -31,7 +31,7 @@ class Entity {
         char GetAvatar();
         std::string GetName();
         int GetId();
-        
+
         int GetHP();
         std::array<int, 4> GetStats(); // this is known to be int[4], which will not change
         short GetColorPair();
@@ -50,8 +50,7 @@ class Entity {
         void Heal(int);
 
         // inventory stuff
-        std::map<std::string, std::pair<Item*, int>>* GetInventory();
-        std::vector<Item*>* GetItemTypes();
+        Inventory* GetInventory();
         void PickupItem(Item*);
         void TakeItems(Entity*);
         bool DropItem(Item*, std::vector<Entity*>*);
@@ -72,8 +71,7 @@ class Entity {
         short color_pair_;
 
         float max_weight_;
-        std::map<std::string, std::pair<Item*, int>> inventory_;
-        std::vector<Item*> items_;
+        Inventory inventory_;
         //bool InventoryComp(Item, Item);
         float GetInvenWeight();
     private:
@@ -98,13 +96,12 @@ class NonBlindEntity : public Entity {
 
 class ItemEntity : public Entity {
     public:
-        ItemEntity(std::string name, std::string description, int y, int x, char avatar, Item* item, int count, std::vector<Entity*>::iterator pos) :
+        ItemEntity(std::string name, std::string description, int y, int x, char avatar) :
             Entity(name, description, y, x, avatar),
-            position_(pos) {
-            PickupItem(item);
+            position_(nullptr) {
         }
         void Brain(map_type, std::vector<Entity*>*);
-    private:
+
         std::vector<Entity*>::iterator position_;
 };
 

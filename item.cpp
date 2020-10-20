@@ -1,4 +1,5 @@
 #include "item.h"
+#include "entity.h"
 
 // return the item's name
 std::string Item::GetName() const {
@@ -15,7 +16,8 @@ float Item::GetValue() {
     return value_;
 }
 
-void Item::GetDescription() {
+Item* Item::Clone() {
+    return new Item(name_, weight_, value_);
 }
 
 // methods for EquippableItem
@@ -49,4 +51,8 @@ void HealingItem::Consume(Entity* user) {
 
 bool operator<(Item const& item_1, Item const& item_2) {
     return item_1.GetName().compare(item_2.GetName()) < 0;
+}
+
+HealingItem* HealingItem::Clone() {
+    return new HealingItem(GetName(), GetWeight(), GetValue(), power_);
 }

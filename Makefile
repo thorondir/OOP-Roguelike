@@ -7,9 +7,9 @@ SRCDIR=./src
 
 LIBS=-lncurses
 
-DEPS = roguelike.h entity.h player.h item.h level.h environment.h renderer.h rng.h spiralpath.h logger.h input.h enemy.h menu.h
-SRC = roguelike.cpp entity.cpp player.cpp item.cpp level.cpp environment.cpp renderer.cpp rng.cpp spiralpath.cpp logger.cpp input.cpp enemy.cpp menu.cpp
-OBJ = roguelike.o entity.o player.o item.o level.o environment.o renderer.o rng.o spiralpath.o logger.o input.o enemy.o menu.o
+DEPS = roguelike.h entity.h player.h item.h level.h environment.h renderer.h rng.h spiralpath.h logger.h input.h enemy.h menu.h inventory.h
+SRC = roguelike.cpp entity.cpp player.cpp item.cpp level.cpp environment.cpp renderer.cpp rng.cpp spiralpath.cpp logger.cpp input.cpp enemy.cpp menu.cpp inventory.cpp
+OBJ = roguelike.o entity.o player.o item.o level.o environment.o renderer.o rng.o spiralpath.o logger.o input.o enemy.o menu.o inventory.o
 
 %.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

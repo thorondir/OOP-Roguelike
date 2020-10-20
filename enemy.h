@@ -14,8 +14,7 @@ class Enemy : public NonBlindEntity {
         Enemy(std::string name, std::string description, int y, int x, char avatar) :
             NonBlindEntity(name, description, y, x, avatar, 15),
             target_(nullptr) {
-                HealingItem* jeff = new HealingItem("Jeff", 69.0, 42.0, 2);
-                PickupItem(jeff);
+                PickupItem(new HealingItem("Jeff", 69.0, 42.0, 2));
                 faction_ = 1;
                 doormat_ = false;
             };
