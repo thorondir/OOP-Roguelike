@@ -92,13 +92,14 @@ void InitialiseRenderer() {
 }
 
 // render the hud
-void RenderHud(Entity* player) {
+void RenderHud(Entity* player, int level) {
     wclear(ncurses_hud_window);
     box(ncurses_hud_window, 0, 0);
 
     // gui status information
     mvwprintw(ncurses_hud_window, 1, 1, "%s", player->GetName().c_str());
     mvwprintw(ncurses_hud_window, 2, 1, "HP: %d", player->GetHP());
+    mvwprintw(ncurses_hud_window, 3, 1, "Floor: %d", level);
 
     // stats box
     std::array<int, 4> stats = player->GetStats();
@@ -194,6 +195,7 @@ void PrintHudMessages() {
 void RenderLevel(Level* level) {
     wclear(stdscr);
 
+    // render map and entities
     RenderEnvironment(level->map_);
     RenderEntities(level->entities_, level->map_);
 
@@ -205,12 +207,15 @@ void RenderEnvironment(map_type map) {
     for (int y = 0; y < kMapHeight; y++) {
         for (int x = 0; x < kMapWidth; x++) {
             if (map[y][x].lit) {
+                // if lit, render the lit colours
                 mvaddch(y, x, map[y][x].character | COLOR_PAIR(map[y][x].lit_color_pair));
             } else {
                 if (map[y][x].seen) {
+                    // if the tile has been seen but isn't lit, render the unlit colours
                     mvaddch(y, x, map[y][x].character | COLOR_PAIR(map[y][x].unlit_color_pair));
                 }
             }
+            // otherwise the tile is blank
         }
     }
 }
@@ -222,8 +227,8 @@ void RenderEntities(std::vector<Entity*> entities, map_type map) {
     std::vector<Entity*> to_render_second;
 
     for (Entity* entity : entities) {
-        // only render entities that can be seen
-        if (map[entity->GetY()][entity->GetX()].lit) {
+        // only render entities that can be seen, and are active (existent)
+        if (map[entity->GetY()][entity->GetX()].lit && entity->active_) {
             // if the entity can be walked over (and hence drawn over), add it to the first layer
             if (entity->GetDoormat()) to_render_first.push_back(entity);
             // otherwise place the entity in the second layer
@@ -253,6 +258,8 @@ void RenderEntities(std::vector<Entity*> entities, map_type map) {
 void AddLogMessages(Log* log) {
     while (log->GetUnreads() > 0) {
         if (log->GetName() != "Main") {
+            // for logs other than the main log, add the name to the front so it's know that it's a special log
+            // ie. debug: 
             hud_messages[hud_message_number++ % kMaxHudMessages] = log->GetName().append(": ").append(log->GetMessage());
         } else {
             hud_messages[hud_message_number++ % kMaxHudMessages] = log->GetMessage();

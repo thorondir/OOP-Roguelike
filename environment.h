@@ -6,9 +6,12 @@
 
 #include "constants.h"
 
+// room object
 class Room {
     public:
+        // can be initialised with size
         Room(int y, int x, int w, int h) : y_(y), x_(x), width_(w), height_(h) {};
+        // or empty
         Room();
 
         int GetY1();
@@ -22,6 +25,7 @@ class Room {
         int y_, x_, width_, height_;
 };
 
+// tile struct
 struct Tile {
     bool blocking;
     bool transparent;

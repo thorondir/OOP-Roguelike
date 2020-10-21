@@ -4,17 +4,17 @@
 #include <string>
 #include <array>
 
-//#include "entity.h"
+// forward declaration
+class Entity;
 
-class Entity; // idk how to resolve this lol
-
+// generic item class
 class Item {
     public:
         // item constructor
         Item(std::string name, float weight, float value) :
             name_(name), weight_(weight), value_(value), count_(1) {};
 
-        std::string GetName() const;
+        std::string GetName();
         float GetWeight();
         float GetValue();
 
@@ -29,8 +29,7 @@ class Item {
         float value_;
 };
 
-bool operator<(Item const&, Item const&);
-
+// an item that can be equipped
 class EquippableItem : public Item {
     public:
         EquippableItem(
@@ -44,6 +43,7 @@ class EquippableItem : public Item {
                         value),
                     bonuses_(bonuses) {};
 
+        // user wearing this item
         Entity* GetUser();
         int GetSlot();
         std::array<int, 4> GetBonuses();
@@ -55,12 +55,16 @@ class EquippableItem : public Item {
         int slot_;
 };
 
+// item that can be consumed
 class ComestibleItem : public Item {
     public:
         ComestibleItem(std::string name, float weight, float value) : Item(name, weight, value) {};
+
+        // pure virtual function to consume with some user
         virtual void Consume(Entity*) = 0;
 };
 
+// comestible item that heals the user
 class HealingItem : public ComestibleItem {
     public:
         HealingItem(std::string name, float weight,  float value, int power) :

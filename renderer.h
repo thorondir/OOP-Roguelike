@@ -14,12 +14,15 @@
 #include "environment.h"
 #include "constants.h"
 
+// rendering functions
+//
 extern void InitialiseRenderer();
 
-extern void RenderHud(Entity*);
+extern void RenderHud(Entity*, int);
 extern void RenderLevel(Level*);
 extern void RenderMenu(Entity*);
 
+// add log messages to the hud
 extern void AddLogMessages(Log*);
 
 #endif

@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 
+// log object for sending messages to the player
 class Log {
     public:
         Log();

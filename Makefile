@@ -1,7 +1,7 @@
 BINNAME=roguelike
 
 CC=clang++
-CFLAGS=-I. -std=c++11 -Wall -g
+CFLAGS=-I. -std=c++11 -Wall -ggdb
 
 SRCDIR=./src
 
@@ -18,9 +18,6 @@ $(BINNAME): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean testcompile
-
-cursestest: cursestest.cpp
-	$(CC) cursestest.cpp -o $@ $(CFLAGS) $(LIBS)
 
 testcompile: tests.cpp $(filter-out roguelike.o, $(OBJ))
 	$(CC) -o tests $^ $(CFLAGS) $(LIBS)

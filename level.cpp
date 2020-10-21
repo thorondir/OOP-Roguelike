@@ -39,11 +39,13 @@ Level::Level() {
 Level::~Level() {
 }
 
+// create a new floor after the first
 Level Level::NextFloor() {
     Level new_floor;
 
     Room room = new_floor.GetRooms()[0];
 
+    // find a random location in the first room for the stairs
     std::uniform_int_distribution<> stair_y(room.GetY1(), room.GetY2());
     std::uniform_int_distribution<> stair_x(room.GetX1(), room.GetX2());
 
@@ -57,6 +59,7 @@ Level Level::NextFloor() {
     return new_floor;
 }
 
+// move an entity between two floors
 void Level::TryMoveEntity(Level* source, Level* dest, Entity* entity) {
     if (source != nullptr && dest != nullptr && entity != nullptr) {
         dest->entities_.push_back(entity);
@@ -71,6 +74,7 @@ void Level::FreeEntities() {
     }
 }
 
+// return the bool array of transparent tiles
 std::array<std::array<bool, kMapWidth>, kMapHeight> Level::GetTransparent() {
     std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
 
@@ -87,18 +91,22 @@ std::vector<Room> Level::GetRooms() {
     return rooms_;
 }
 
+// return the y coordinate of the up stair
 int Level::GetUpStairY() {
     return up_stair_y;
 }
 
+// return the x coordinate of the up stair
 int Level::GetUpStairX() {
     return up_stair_x;
 }
 
+// return the x coordinate of the down stair
 int Level::GetDownStairY() {
     return down_stair_y;
 }
 
+// return the x coordinate of the down stair
 int Level::GetDownStairX() {
     return down_stair_x;
 }
@@ -172,20 +180,22 @@ void Level::GenerateTunnels() {
                                 target[0] - rooms_[i].GetY2()));
                 }
             }
-            if (target[1] < corner_x) { // if the tunnel needs to go left
-                // used corner_x - 1 so edges of tunnel "rooms" don't overlap
-                rooms_.push_back(Room(
-                            target[0],
-                            rooms_[i+1].GetX2() + 1,
-                            (corner_x - 1) - rooms_[i+1].GetX2(),
-                            1));
-            } else { // otherwise travel right
-                // used corner_x + 1 so edges of tunnel "rooms" don't overlap
-                rooms_.push_back(Room(
-                            target[0],
-                            corner_x + 1,
-                            rooms_[i+1].GetX1() - (corner_x + 1),
-                            1));
+            if (!(corner_x >= rooms_[i+1].GetX1() - 1 && corner_x <= rooms_[i+1].GetX2() + 1)) {
+                if (target[1] < corner_x) { // if the tunnel needs to go left
+                    // used corner_x - 1 so edges of tunnel "rooms" don't overlap
+                    rooms_.push_back(Room(
+                                target[0],
+                                rooms_[i+1].GetX2() + 1,
+                                (corner_x - 1) - rooms_[i+1].GetX2(),
+                                1));
+                } else { // otherwise travel right
+                    // used corner_x + 1 so edges of tunnel "rooms" don't overlap
+                    rooms_.push_back(Room(
+                                target[0],
+                                corner_x + 1,
+                                rooms_[i+1].GetX1() - (corner_x + 1),
+                                1));
+                }
             }
         } else {
             int corner_y = origin_y(kRng);
@@ -205,18 +215,20 @@ void Level::GenerateTunnels() {
                                 1));
                 }
             }
-            if (target[0] < corner_y) { // if the tunnel needs to go up
-                rooms_.push_back(Room(
-                            rooms_[i+1].GetY2() + 1,
-                            target[1],
-                            1,
-                            (corner_y - 1) - rooms_[i+1].GetY2()));
-            } else { // otherwise travel down
-                rooms_.push_back(Room(
-                            corner_y + 1,
-                            target[1],
-                            1,
-                            (rooms_[i+1].GetY1() - 1) - corner_y));
+            if (!(corner_y >= rooms_[i+1].GetY1() - 1 && corner_y <= rooms_[i+1].GetY2() + 1)) {
+                if (target[0] < corner_y) { // if the tunnel needs to go up
+                    rooms_.push_back(Room(
+                                rooms_[i+1].GetY2() + 1,
+                                target[1],
+                                1,
+                                (corner_y - 1) - rooms_[i+1].GetY2()));
+                } else { // otherwise travel down
+                    rooms_.push_back(Room(
+                                corner_y + 1,
+                                target[1],
+                                1,
+                                (rooms_[i+1].GetY1() - 1) - corner_y));
+                }
             }
         }
     }

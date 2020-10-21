@@ -5,6 +5,7 @@
 #include <queue>
 #include <utility>
 
+// FOV object
 class SpiralPathFOV {
     public:
         SpiralPathFOV(int, int, int, double, double);

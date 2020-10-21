@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 
+// struct for the types of possible inputs
 enum InputType {
     kNone,
     kAction,
@@ -11,6 +12,7 @@ enum InputType {
     kMenuOpen,
 };
 
+// struct containing the possible places where input can happen
 enum InputContext {
     kMain,
     kMenu,
@@ -18,6 +20,7 @@ enum InputContext {
     kAbort
 };
 
+// struct containing a context and input type
 struct FrameInfo {
     InputType input_type;
     InputContext input_context;

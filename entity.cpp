@@ -37,6 +37,8 @@ Entity::Entity(std::string name, std::string description, int y, int x, char ava
     living_ = false; // monsters attack living things, but shouldn't attack every entity
     dead_ = false; // entities start alive
 
+    active_ = true; // whether or not it exists
+
     color_pair_ = 3;
 
     // inventory
@@ -85,18 +87,22 @@ std::array<int, 4> Entity::GetStats() {
     return stats_;
 }
 
+// return the faction
 int Entity::GetFaction() {
     return faction_;
 }
 
+// return bool of whether this entity can be walked over (without being attacked)
 bool Entity::GetDoormat() {
     return doormat_;
 }
 
+// is this entity a living thing?
 bool Entity::GetLiving() {
     return living_;
 }
 
+// is this entity dead (living things can be dead)
 bool Entity::GetDead() {
     return dead_;
 }
@@ -106,7 +112,8 @@ short Entity::GetColorPair() {
     return color_pair_;
 }
 
-void Entity::Brain(map_type map, std::vector<Entity*>* entities) {
+// the most default entity just sits around doing nothing
+void Entity::Brain(map_type map, std::vector<Entity*>& entities) {
     return;
 }
 
@@ -116,24 +123,32 @@ void Entity::MoveAttack(int dy, int dx, map_type map, std::vector<Entity*> resid
     int new_x = x_ + dx;
 
     for (Entity* target : residents) {
+        // check if each entity is in the way of this movement
         if (target->GetY() == new_y && target->GetX() == new_x) {
-            if (target->GetFaction() != GetFaction() && !target->GetDead()) {
+            // if it's not an ally, it's alive, and it isn't a doormat
+            if (target->GetFaction() != GetFaction() && !target->GetDead() && target->active_ && !target->GetDoormat()) {
                 // damage roll can be up to maximum roll
                 std::uniform_int_distribution<> damage_range(0, stats_[2]);
 
+                // the damage is equal to a roll plus the bonus stat
                 int damage = damage_range(kRng) + stats_[3];
 
+                // apply that damage
                 target->TakeDamage(damage);
+
+                // print a message about the attack
                 main_log->AddMessage(std::string("").append(name_)
                         .append(std::string(" attacks ")).append(target->GetName())
                         .append(" for ").append(std::to_string(damage)).append(" damage!"));
                 return;
             } else if (!target->GetDoormat()){
+                // otherwise, if the entity isn't a doormat, interrupt this movement
                 return;
             }
         }
     }
 
+    // if nothing was in the way, move into that spot
     if (!map[new_y][new_x].blocking) {
         Move(dy, dx);
     }
@@ -180,6 +195,7 @@ Inventory* Entity::GetInventory() {
     return &inventory_;
 }
 
+// return the total weight carried by this entity
 float Entity::GetInvenWeight() {
     float weight = 0;
     for (auto item : inventory_.GetItems()) {
@@ -188,10 +204,12 @@ float Entity::GetInvenWeight() {
     return weight;
 }
 
+// add an item to this entity's inventory
 void Entity::PickupItem(Item* item){
     inventory_.AddItem(item);
 }
 
+// take everything from another entity's inventory into this one's
 void Entity::TakeItems(Entity* other_entity) {
     Inventory* other_inventory = other_entity->GetInventory();
     // first get items
@@ -208,40 +226,42 @@ void Entity::TakeItems(Entity* other_entity) {
     }
 }
 
-bool Entity::DropItem(Item* item, std::vector<Entity*>* entities) {
+// drop an item on the ground, spawning an ItemEntity for it
+bool Entity::DropItem(Item* item, std::vector<Entity*>& entities) {
     auto item_it = inventory_.FindItem(item);
+    // check that the item exists in the other entity's inventory
     if (item_it != inventory_.GetItems().end()) {
         int count = item->count_;
         if (count > 0) {
             std::string description;
 
+            // change the description based on how many there are
             if (count > 1) {
                 description = std::to_string(count).append("x ").append(item->GetName());
             } else {
                 description = std::string("A ").append(item->GetName());
             }
 
-
+            // create the ItemEntity
             ItemEntity* new_entity = new ItemEntity(
                     item->GetName(),
                     description,
                     GetY(),
                     GetX(),
                     item->GetName()[0]);
-            entities->push_back(new_entity);
+            // add it to the entities vector
+            entities.push_back(new_entity);
 
-            new_entity->position_ = std::find(entities->begin(), entities->end(), new_entity);
+            // move the item into the ItemEntity's inventory
+            Inventory::TryMove(&inventory_, (*std::find(entities.begin(), entities.end(), new_entity))->GetInventory(), item);
 
-            Inventory::TryMove(&inventory_, (*new_entity->position_)->GetInventory(), item);
-
-            // this breaks (as in segfaults) loops
-            //inventory_.erase(item->GetName());
             return true;
         }
     }
     return false;
 }
 
+// unimplemented
 void Entity::EquipItem(){
 }
 
@@ -251,6 +271,7 @@ void Entity::DequipItem(){
 void Entity::UseItem(){
 }
 
+// eat an item, calling its consume method, with entity pointer to this entity
 bool Entity::ConsumeItem(ComestibleItem* item){
     if (item->count_ > 0) {
         item->Consume(this);
@@ -267,6 +288,7 @@ std::vector<std::vector<bool>> NonBlindEntity::GetFOV() {
     return FOV.SpiralPath(y_, x_);
 }
 
+// updated the transparentmap of an entity that can see
 void NonBlindEntity::UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap) {
     for (int y = 0; y < kMapHeight; y++) {
         for (int x = 0; x < kMapWidth; x++) {
@@ -275,17 +297,14 @@ void NonBlindEntity::UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>
     }
 }
 
-NonBlindEntity::~NonBlindEntity() {
-}
-
-// Item entity
-void ItemEntity::Brain(map_type map, std::vector<Entity*>* entities) {
+// Item entity update function
+void ItemEntity::Brain(map_type map, std::vector<Entity*>& entities) {
     int total_count = 0;
     for (auto item : inventory_.GetItems()) {
         total_count += item->count_;
     }
     if (total_count <= 0) {
-        entities->erase(position_);
-        delete this;
+        // disable this entity if it's empty
+        active_ = false;
     }
 };

@@ -1,14 +1,16 @@
 #ifndef INVENTORY_H_
 #define INVENTORY_H_
 
-class Item;
 #include "item.h"
 #include <vector>
 #include <algorithm>
 
+class Item;
 
+// inventory object, manages ownership etc
 class Inventory {
     public:
+        // no need to construct anything
         ~Inventory();
 
         static bool TryMove(Inventory*, Inventory*, Item*);

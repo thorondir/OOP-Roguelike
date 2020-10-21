@@ -2,7 +2,7 @@
 #include "entity.h"
 
 // return the item's name
-std::string Item::GetName() const {
+std::string Item::GetName() {
     return name_;
 }
 
@@ -16,6 +16,7 @@ float Item::GetValue() {
     return value_;
 }
 
+// return a new clone of this Item
 Item* Item::Clone() {
     return new Item(name_, weight_, value_);
 }
@@ -49,10 +50,7 @@ void HealingItem::Consume(Entity* user) {
     user->Heal(power_);
 }
 
-bool operator<(Item const& item_1, Item const& item_2) {
-    return item_1.GetName().compare(item_2.GetName()) < 0;
-}
-
+// return a new clone of this HealingItem
 HealingItem* HealingItem::Clone() {
     return new HealingItem(GetName(), GetWeight(), GetValue(), power_);
 }

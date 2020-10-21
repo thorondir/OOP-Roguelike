@@ -15,25 +15,28 @@
 #include "item.h"
 #include "inventory.h"
 
+// forward declarations
 class Inventory;
-class Item; // see corresponding comment in item.h
+class Item;
 class ComestibleItem;
 
 class Entity {
     public:
+        // constructor
         Entity(std::string, std::string, int, int, char);
         virtual ~Entity();
 
         static int next_id_;
 
+        bool active_; // whether or not this entity actively exists
+
+        // getters
         int GetX();
         int GetY();
         char GetAvatar();
         std::string GetName();
         int GetId();
-
         int GetHP();
-        std::array<int, 4> GetStats(); // this is known to be int[4], which will not change
         short GetColorPair();
         int GetFaction();
         bool GetDoormat();
@@ -41,10 +44,12 @@ class Entity {
         bool GetDead();
         void SetPos(int, int);
 
-        virtual void Brain(map_type, std::vector<Entity*>*); // picks an action
+        std::array<int, 4> GetStats(); // this is known to be int[4], which will not change
+
+        // methods
+        virtual void Brain(map_type, std::vector<Entity*>&); // picks an action
         void Move(int, int);
         void MoveAttack(int, int, map_type, std::vector<Entity*>);
-
         void TakeDamage(int);
         //void Damage(int);
         void Heal(int);
@@ -53,7 +58,7 @@ class Entity {
         Inventory* GetInventory();
         void PickupItem(Item*);
         void TakeItems(Entity*);
-        bool DropItem(Item*, std::vector<Entity*>*);
+        bool DropItem(Item*, std::vector<Entity*>&);
         void EquipItem();
         void DequipItem();
         void UseItem();
@@ -72,7 +77,6 @@ class Entity {
 
         float max_weight_;
         Inventory inventory_;
-        //bool InventoryComp(Item, Item);
         float GetInvenWeight();
     private:
         std::string name_;
@@ -81,28 +85,26 @@ class Entity {
         int id_;
 };
 
+// entity that includes FOV
 class NonBlindEntity : public Entity {
     public:
         NonBlindEntity(std::string name, std::string description, int y, int x, char avatar, int radius) :
             Entity(name, description, y, x, avatar),
             FOV(kMapHeight, kMapWidth, radius, 0, 2*M_PI) {};
-        virtual ~NonBlindEntity();
 
-        std::vector<std::vector<bool>> GetFOV();
-        void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>);
+        std::vector<std::vector<bool>> GetFOV(); // return which tiles it can see
+        void UpdateFOVTransparent(std::array<std::array<bool, kMapWidth>, kMapHeight>); // update the transparency info
     private:
-        SpiralPathFOV FOV;
+        SpiralPathFOV FOV; // FOV object
 };
 
+// entity for item fallen on the floor
 class ItemEntity : public Entity {
     public:
         ItemEntity(std::string name, std::string description, int y, int x, char avatar) :
-            Entity(name, description, y, x, avatar),
-            position_(nullptr) {
-        }
-        void Brain(map_type, std::vector<Entity*>*);
+            Entity(name, description, y, x, avatar) {};
 
-        std::vector<Entity*>::iterator position_;
+        void Brain(map_type, std::vector<Entity*>&);
 };
 
 #endif

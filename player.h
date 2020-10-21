@@ -12,16 +12,18 @@
 #include "spiralpath.h"
 #include "input.h"
 
+// player class, the player can see
 class Player : public NonBlindEntity {
     public:
+        // player instantiated with specific name etc
         Player(int y, int x) : NonBlindEntity("Player", "This is you, the player", y, x, '@', 10) {
             living_ = true;
             doormat_ = false;
-            stats_[2] = 5;
+            stats_[2] = 9;
         };
         ~Player();
 
-        void Brain(map_type, std::vector<Entity*>*);
+        void Brain(map_type, std::vector<Entity*>&);
     private:
         std::vector<std::pair<Item,int>> equipment_;
         float max_weight_;

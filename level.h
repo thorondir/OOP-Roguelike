@@ -11,6 +11,7 @@
 #include "constants.h"
 #include "rng.h"
 
+// a level containing a map, and entities
 class Level {
     public:
         Level();
@@ -38,6 +39,7 @@ class Level {
 
         int up_stair_y, up_stair_x, down_stair_y, down_stair_x;
 
+        // methods to generate the level
         void GenerateRooms();
         void GenerateTunnels();
         void ApplyRooms();
