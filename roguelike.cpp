@@ -32,31 +32,54 @@ int main() {
     levels[0].entities_.push_back(player);
     player->PickupItem(new HealingItem("Jess", 69.0, 42.0, 10));
 
-    std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
-
-    for (int y = 0; y < kMapHeight; y++) {
-        for (int x = 0; x < kMapWidth; x++) {
-            transparentmap[y][x] = levels[0].map_[y][x].transparent;
-        }
-    }
-
-    player->UpdateFOVTransparent(transparentmap);
-
     // game loop
     FrameInfo frame_info = {kNone, kMain};
+    Level* level = &levels[0];
+    int current_level = 1;
     do {
         switch (frame_info.input_context) {
             case kMain: {
+                if (frame_info.input_type == kFloorDown) {
+                    if (level->map_[player->GetY()][player->GetX()].character == '>') {
+                        if (current_level == levels.size()) {
+                            levels.push_back(level->NextFloor());
+                        }
+
+                        Level::TryMoveEntity(&levels[current_level-1], &levels[current_level], player);
+                        player->SetPos(levels[current_level].GetUpStairY(), levels[current_level].GetUpStairX());
+
+                        level = &levels[current_level]; // level -1 + 1
+                        current_level++;
+
+                        main_log->AddMessage("The player is transported one floor closer to the core...");
+                    }
+                }
+
+                if (frame_info.input_type == kFloorUp) {
+                    if (level->map_[player->GetY()][player->GetX()].character == '<') {
+                        if (current_level > 1) {
+                            level = &levels[current_level-2];
+                            Level::TryMoveEntity(&levels[current_level-1], &levels[current_level-2], player);
+                            player->SetPos(level[current_level-2].GetDownStairY(), level[current_level-2].GetDownStairX());
+                            current_level--;
+                            main_log->AddMessage("The player is transported one floor away from the core...");
+                        }
+                    }
+                }
+
                 if (frame_info.input_type == kAction) {
-                    for (Entity* entity : levels[0].entities_) {
-                        entity->Brain(levels[0].map_, &levels[0].entities_);
+                    for (Entity* entity : level->entities_) {
+                        entity->Brain(level->map_, &level->entities_);
                     }
-                    // loop again just in case the entity got deleted    
-                    for (Entity* entity : levels[0].entities_) {
-                        // only update transparentmap if it's a NonBlindEntity
-                        NonBlindEntity* non_blind_entity = dynamic_cast<NonBlindEntity*>(entity);
-                        if (non_blind_entity) non_blind_entity->UpdateFOVTransparent(transparentmap);
-                    }
+                }
+
+                // update fov
+                // loop again just in case the entity got deleted
+                std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap = level->GetTransparent();
+                for (Entity* entity : level->entities_) {
+                    // only update transparentmap if it's a NonBlindEntity
+                    NonBlindEntity* non_blind_entity = dynamic_cast<NonBlindEntity*>(entity);
+                    if (non_blind_entity) non_blind_entity->UpdateFOVTransparent(transparentmap);
                 }
 
                 // render the level and the hud
@@ -65,15 +88,15 @@ int main() {
                 for (int y = 0; y < kMapHeight; y++) {
                     for (int x = 0; x < kMapWidth; x++) {
                         if (visible[y][x]) {
-                            levels[0].map_[y][x].lit = true;
-                            levels[0].map_[y][x].seen = true;
+                            level->map_[y][x].lit = true;
+                            level->map_[y][x].seen = true;
                         } else {
-                            levels[0].map_[y][x].lit = false;
+                            level->map_[y][x].lit = false;
                         }
                     }
                 }
 
-                RenderLevel(&levels[0]);
+                RenderLevel(level);
                 AddLogMessages(main_log);
                 AddLogMessages(debug_log);
                 RenderHud(player);
@@ -94,7 +117,7 @@ int main() {
     endwin();
     delete main_log;
     delete debug_log;
-    
+
     // free all entities
     for (Level level : levels) {
         level.FreeEntities();

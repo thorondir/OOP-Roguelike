@@ -75,14 +75,17 @@ void InitialiseRenderer() {
     init_color(8, 0, 0, 500);
     //init_color(9, 800, 800, 800);
     init_color(10, 0, 100, 100);
+    init_color(11, 100, 100, 0); // dark yellow
 
     // initialise colour pairs
     init_pair(0, COLOR_BLACK, COLOR_BLACK);
     init_pair(1, COLOR_BLACK, COLOR_BLUE);
-    init_pair(2, 8, 8);
+    init_pair(2, COLOR_BLACK, 8);
     init_pair(3, COLOR_BLACK, COLOR_CYAN);
-    init_pair(4, 10, 10); // dark cyan
+    init_pair(4, COLOR_BLACK, 10); // dark cyan
     init_pair(5, COLOR_BLACK, COLOR_RED); // blood
+    init_pair(6, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(7, COLOR_BLACK, 11);
 
     // define background
     bkgd(' ' | COLOR_PAIR(0));

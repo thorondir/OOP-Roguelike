@@ -3,6 +3,8 @@
 // some useful tile definitions
 Tile wall = Tile{true, false, 1, 2, ' ', false, false};
 Tile ground = Tile{false, true, 3, 4, ' ', false, false};
+Tile up_stair = Tile{false, true, 6, 7, '<', false, false};
+Tile down_stair = Tile{false, true, 6, 7, '>', false, false};
 
 // random ranges, inclusive
 int max_rooms = 15;
@@ -37,6 +39,31 @@ Level::Level() {
 Level::~Level() {
 }
 
+Level Level::NextFloor() {
+    Level new_floor;
+
+    Room room = new_floor.GetRooms()[0];
+
+    std::uniform_int_distribution<> stair_y(room.GetY1(), room.GetY2());
+    std::uniform_int_distribution<> stair_x(room.GetX1(), room.GetX2());
+
+    int y = stair_y(kRng);
+    int x = stair_x(kRng);
+
+    new_floor.map_[y][x] = up_stair;
+    new_floor.up_stair_y = y;
+    new_floor.up_stair_x = x;
+
+    return new_floor;
+}
+
+void Level::TryMoveEntity(Level* source, Level* dest, Entity* entity) {
+    if (source != nullptr && dest != nullptr && entity != nullptr) {
+        dest->entities_.push_back(entity);
+        source->entities_.erase(std::find(source->entities_.begin(), source->entities_.end(), entity));
+    }
+}
+
 // free all entities (make sure to remove entities that need to be moved before doing this)
 void Level::FreeEntities() {
     for (Entity* entity : entities_) {
@@ -44,9 +71,36 @@ void Level::FreeEntities() {
     }
 }
 
+std::array<std::array<bool, kMapWidth>, kMapHeight> Level::GetTransparent() {
+    std::array<std::array<bool, kMapWidth>, kMapHeight> transparentmap;
+
+    for (int y = 0; y < kMapHeight; y++) {
+        for (int x = 0; x < kMapWidth; x++) {
+            transparentmap[y][x] = map_[y][x].transparent;
+        }
+    }
+    return transparentmap;
+}
+
 // return the rooms vector
 std::vector<Room> Level::GetRooms() {
     return rooms_;
+}
+
+int Level::GetUpStairY() {
+    return up_stair_y;
+}
+
+int Level::GetUpStairX() {
+    return up_stair_x;
+}
+
+int Level::GetDownStairY() {
+    return down_stair_y;
+}
+
+int Level::GetDownStairX() {
+    return down_stair_x;
 }
 
 // generate rooms as non-overlapping rectangles, and store them in the rooms vector
@@ -183,7 +237,7 @@ void Level::ApplyRooms() {
 void Level::PopulateRooms() {
     for (Room room : rooms_) {
         float area = room.GetArea();
-        //std::bernoulli_distribution chance_enemy((area)/50);
+        // spawn enemies
         std::bernoulli_distribution chance_enemy(-(1/((area/100)+1))+1);
 
         while (chance_enemy(kRng)) {
@@ -197,4 +251,17 @@ void Level::PopulateRooms() {
                         's'));
         }
     }
+
+    // pick a spot for the down stair
+    std::uniform_int_distribution<> room_num (0, rooms_.size() - 1);
+    Room room = rooms_[room_num(kRng)];
+
+    std::uniform_int_distribution<> stair_y(room.GetY1(), room.GetY2());
+    std::uniform_int_distribution<> stair_x(room.GetX1(), room.GetX2());
+
+    int y = stair_y(kRng);
+    int x = stair_x(kRng);
+    map_[y][x] = down_stair;
+    down_stair_y = y;
+    down_stair_x = x;
 }

@@ -6,6 +6,8 @@
 enum InputType {
     kNone,
     kAction,
+    kFloorDown,
+    kFloorUp,
     kMenuOpen,
 };
 

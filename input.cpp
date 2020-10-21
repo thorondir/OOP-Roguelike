@@ -20,6 +20,8 @@ FrameInfo input(FrameInfo last_frame) {
             (last_ch >= KEY_DOWN && last_ch <= KEY_RIGHT) ||
             last_ch == 'g')
         return {kAction, last_frame.input_context};
+    if (last_ch == '>') return {kFloorDown, last_frame.input_context};
+    if (last_ch == '<') return {kFloorUp, last_frame.input_context};
     if (last_ch == 'i') return {kMenuOpen, kMenu};
     return {kNone, last_frame.input_context};
 }
