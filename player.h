@@ -24,6 +24,7 @@ class Player : public NonBlindEntity {
         ~Player();
 
         void Brain(map_type, std::vector<Entity*>&);
+        void CheckDead(std::vector<Entity*>&);
     private:
         std::vector<std::pair<Item,int>> equipment_;
         float max_weight_;

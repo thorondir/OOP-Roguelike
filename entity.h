@@ -53,6 +53,7 @@ class Entity {
         void TakeDamage(int);
         //void Damage(int);
         void Heal(int);
+        virtual void CheckDead(std::vector<Entity*>&);
 
         // inventory stuff
         Inventory* GetInventory();

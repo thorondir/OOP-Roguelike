@@ -117,6 +117,9 @@ void Entity::Brain(map_type map, std::vector<Entity*>& entities) {
     return;
 }
 
+void Entity::CheckDead(std::vector<Entity*>& residents) {
+}
+
 // for both the following methods, the entity can move out of bounds. i don't care.
 void Entity::MoveAttack(int dy, int dx, map_type map, std::vector<Entity*> residents) {
     int new_y = y_ + dy;

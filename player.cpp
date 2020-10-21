@@ -6,13 +6,6 @@ Player::~Player() {
 // update the player
 void Player::Brain(map_type map, std::vector<Entity*>& residents) {
     if (!dead_) {
-        if (hp_ <= 0) {
-            // if dead, stop doing stuff
-            main_log->AddMessage("You are Dead!");
-            color_pair_ = 5; 
-            dead_ = true;
-            return;
-        }
         int ch = GetLastCh();
         // manage input for movement
         if (ch == '8' || ch == KEY_UP) {
@@ -44,5 +37,14 @@ void Player::Brain(map_type map, std::vector<Entity*>& residents) {
                 }
             }
         }
+    }
+}
+
+void Player::CheckDead(std::vector<Entity*>& residents) {
+    if (hp_ <= 0) {
+        // if dead, stop doing stuff
+        main_log->AddMessage("You are Dead!");
+        color_pair_ = 5; 
+        dead_ = true;
     }
 }

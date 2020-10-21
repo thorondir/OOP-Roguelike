@@ -26,6 +26,7 @@ class Enemy : public NonBlindEntity {
             };
         ~Enemy();
         void Brain(map_type, std::vector<Entity*>&);
+        void CheckDead(std::vector<Entity*>&);
     private:
         Entity* target_;
 };

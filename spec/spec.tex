@@ -85,7 +85,7 @@ The player moves in one direction constantly:
 The player continuously passes their turn while being approached by an enemy ('s'):
     The enemy attacks the player who eventually dies
 The player dies:
-    The game prints a game over & high score message when the player next tries to move
+    The game prints a game over & high score message
 The player presses 'i' then 'a'  without having picked up any items:
     The player's health increases by 10, and the item "Repair kit" is removed from the
     player's inventory
@@ -95,6 +95,8 @@ The player stands on a '>' tile and presses '>':
 The player attacks (walks into) an enemy ('s') continuously:
     The enemy eventually dies unless the player does first, in which case the player
     can now walk over the enemy, which now has a red background
+The player walks into a room, then walks out and away from the entrance:
+    The room is renderered in a darker colour to the player's immediate surroundings
 \end{verbatim}
 \subsection{Class Descriptions}
 \subsubsection{Entity}

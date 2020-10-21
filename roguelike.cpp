@@ -89,6 +89,11 @@ int main() {
                         if (level->entities_[e]->active_)
                             level->entities_[e]->Brain(level->map_, level->entities_);
                     }
+                    // then do it again and check if anything died
+                    for (int e = level->entities_.size() - 1; e >= 0; e--) {
+                        if (level->entities_[e]->active_)
+                            level->entities_[e]->CheckDead(level->entities_);
+                    }
                 }
 
                 // update fov
