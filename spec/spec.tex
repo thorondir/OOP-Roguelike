@@ -57,27 +57,44 @@ if (entity.GetX() == 1) {
         entity.GetX() << std::endl;
 }
 \end{verbatim}
+
+See tests.cpp for comprehensive tests.
 \subsubsection{Integration Testing}
 Some of the game's processes will not be easily testable using unit testing, so integration testing will be used to verify that elements of the user experience are funtioning correctly.
 
-For example, the following integration test will be used to exhaustively verify that orthogonal movement will be perceived to function correctly:
+The following integration test will be used to exhaustively verify that orthogonal movement will be perceived to function correctly:
 \begin{verbatim}
-[Game Start]
-[Player presses up arrow]:  
-    Player Entity's `@' character moves up on the screen by one character.
-    A debug message appears in the HUD indicating that the player moved up.
-[Player presses down arrow]:
-    Player Entity's `@' character moves down on the screen by one character.
-    The previous debug message moves up to make space for the next.
-    A debug message appears at the bottom of the HUD indicating that the player moved down.
-[Player presses left arrow]:
-    Player Entity's `@' character moves left on the screen by one character.
-    All previous debug messages move up to make space for the next.
-    A debug message appears at the bottom of the HUD indicating that the player moved down.
-[Player presses right arrow]:
-    Player Entity's `@' character moves right on the screen by one character.
-    All previous debug messages move up to make space for the next.
-    A debug message appears at the bottom of the HUD indicating that the player moved right.
+Key 6 pressed -> '@' moves right
+Key 3 pressed -> '@' moves down and right
+Key 2 pressed -> '@' moves down
+Key 1 pressed -> '@' moves down and left
+Key 4 pressed -> '@' moves left
+Key 7 pressed -> '@' moves up and left
+Key 8 pressed -> '@' moves up
+Key 9 pressed -> '@' moves up and right
+Key 5 pressed -> '@' remains stationary; other entities moves
+\end{verbatim}
+
+Furthermore, a number of more general expectations were defined for particular scenarios.
+\begin{verbatim}
+Action:
+    Expected Outcome
+
+The player moves in one direction constantly:
+    The player eventually reaches a wall and cannot move further
+The player continuously passes their turn while being approached by an enemy ('s'):
+    The enemy attacks the player who eventually dies
+The player dies:
+    The game prints a game over & high score message when the player next tries to move
+The player presses 'i' then 'a'  without having picked up any items:
+    The player's health increases by 10, and the item "Repair kit" is removed from the
+    player's inventory
+The player stands on a '>' tile and presses '>':
+    The map changes to the next level, which is unexplored if it has not yet been
+    visited. The level counter increases by one
+The player attacks (walks into) an enemy ('s') continuously:
+    The enemy eventually dies unless the player does first, in which case the player
+    can now walk over the enemy, which now has a red background
 \end{verbatim}
 \subsection{Class Descriptions}
 \subsubsection{Entity}
@@ -94,8 +111,6 @@ This will be a class describing a physical object within the game, excepting ter
 This class represents an item as it exists within the storage some other entity, and thus includes information about the item's properties such as value and weight.
 
 \textbf{Base Class:} The base class will simply contain the item's weight and value information, thus representing the most basic of items, such as money or rocks.
-
-\textbf{EquippableItem:} The \textit{EquippableItem} subclass represents an item that can be equipped by another entity, and thus includes variables that track which item slot it is relevant to, and the buffs provided by the item.
 
 \textbf{ComestibleItem:} This subclass is an abstract class representing an item that can be consumed by an entity, and thus includes a virtual function for the effects upon consumption.
 
@@ -116,7 +131,6 @@ The \textit{Room} object contains the information relevant to a single room with
         \# hp : int\\
         \# stats : array<int, 4>\\
         \# equipment\_slots : array<int, 4>\\
-        \# equipment : vector<EquippableItem>\\
         \# friendly : bool\\
         \# doormat : bool\\
         \# living : bool\\
@@ -183,30 +197,14 @@ The \textit{Room} object contains the information relevant to a single room with
         + GetValue() : float\\
         + Drop(y : int, x : int) : void
     }
-    \umlclass[x=-3,y=-6]{EquippableItem}{
-        -- user : *entity\\
-        -- bonuses : array<int, 4>\\
-        -- slot : int\\
-        }{
-        + EquippableItem(\\
-        \   name : string,\\
-        \   weight : float,\\
-        \   value : float,\\
-        \   bonuses : array<int, 4>)\\
-        + GetUser() : *entity\\
-        + GetSlot() : int\\
-        + GetBonuses : int[3]\\
-        + SetUser(user : Entity*) : void\\
-    }
-    \umlclass[type=abstract,x=3,y=-6]{ComestibleItem}{
+    \umlclass[type=abstract,x=0,y=-6]{ComestibleItem}{
         }{
         + virtual Consume(user: Entity*) : void
     }
-    \umlclass[x=3,y=-12]{HealingItem}{
+    \umlclass[x=0,y=-12]{HealingItem}{
         }{
         + Consume(user : Entity*) : void 
     }
-    \umlinherit[geometry=|-|]{EquippableItem}{Item}
     \umlinherit[geometry=|-|]{ComestibleItem}{Item}
     \umlinherit{HealingItem}{ComestibleItem}
 % use subtypes rather than enum, introduce quantity checkers and shit

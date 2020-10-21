@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <vector>
 #include <random>
+#include <fstream>
 
 #include "logger.h"
 #include "renderer.h"

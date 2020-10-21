@@ -112,6 +112,30 @@ int main() {
                     }
                 }
 
+                if (player->GetDead()) {
+                    int high;
+                    std::ifstream hiscore_in;
+                    std::ofstream hiscore_out;
+                    hiscore_in.open("scores.dat");
+
+                    hiscore_in >> high;
+                    hiscore_in.close();
+
+                    main_log->AddMessage("!---GAME OVER---!");
+                    main_log->AddMessage(std::string("You made it to floor ").append(std::to_string(current_level)));
+
+                    if (!high || current_level > high) {
+                        high = current_level;
+                        main_log->AddMessage("NEW HIGH SCORE!");
+                    }
+                    main_log->AddMessage(std::string("The high score is ").append(std::to_string(high)));
+
+                    hiscore_out.open("scores.dat", std::ios::trunc);
+                    hiscore_out << high << std::endl;
+                    hiscore_out << "Don't edit this file, it's just scummy." << std::endl;
+                    hiscore_out.close();
+                }
+
                 // call rendering functions
                 RenderLevel(level);
                 AddLogMessages(main_log);
